@@ -5857,13 +5857,1692 @@ const { SourceMapConsumer, SourceNode } = require("source-map");`,
 上面代码中，\\uD83D\\uDC2A是一个四个字节的 UTF-16 编码，代表【一个】字符。但是，ES5 不支持四个字节以上的 UTF-16 编码，会将其识别为两个字符，导致第二行代码结果为true。加了u修饰符以后，ES6 就会识别其为一个字符，所以第一行代码结果为false。`,
         score: 2,
       },
+      {
+        question: `如果拷贝的一段模板字符串中有前后换行，可以怎么去除？`,
+        answer: `所有模板字符串的空格和换行，都是被保留的，比如<ul>标签前面会有一个换行。如果你不想要这个换行，可以使用trim方法消除它。
+
+$('#list').html(\`
+<ul>
+  <li>first</li>
+  <li>second</li>
+</ul>
+\`.trim());`,
+        score: 1,
+      },
+      {
+        question: `什么是标签模板，他有什么重要作用？`,
+        answer: `模板字符串的功能，不仅仅是上面这些。它可以紧跟在一个函数名后面，该函数将被调用来处理这个模板字符串。这被称为“标签模板”功能（tagged template）。
+
+alert\`hello\`
+// 等同于
+alert(['hello'])
+标签模板其实不是模板，而是函数调用的一种特殊形式。“标签”指的就是函数，紧跟在后面的模板字符串就是它的参数。
+
+“标签模板”的一个重要应用，就是过滤 HTML 字符串，防止用户输入恶意内容。
+
+let message =
+  SaferHTML\`<p>\${sender} has sent you a message.</p>\`;
+
+function SaferHTML(templateData) {
+  let s = templateData[0];
+  for (let i = 1; i < arguments.length; i++) {
+    let arg = String(arguments[i]);
+
+    // Escape special characters in the substitution.
+    s += arg.replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+
+    // Don't escape special characters in the template.
+    s += templateData[i];
+  }
+  return s;
+}
+上面代码中，sender变量往往是用户提供的，经过SaferHTML函数处理，里面的特殊字符都会被转义。
+
+标签模板的另一个应用，就是多语言转换（国际化处理）。
+
+i18n\`Welcome to \${siteName}, you are visitor number \${visitorNumber}!\`
+// "欢迎访问xxx，您是第xxxx位访问者！"`,
+        score: 2,
+      },
+      {
+        question: `String.raw()有什么用？`,
+        answer: `ES6 还为原生的 String 对象，提供了一个raw()方法。该方法返回一个斜杠都被转义（即斜杠前面再加一个斜杠）的字符串，往往用于模板字符串的处理方法。
+
+String.raw\`Hi\\n${2+3}!\`
+// 实际返回 "Hi\\\\n5!"，显示的是转义后的结果 "Hi\\n5!"
+
+String.raw\`Hi\\u000A!\`;
+// 实际返回 "Hi\\\\u000A!"，显示的是转义后的结果 "Hi\\u000A!"
+如果原字符串的斜杠已经转义，那么String.raw()会进行再次转义。
+
+String.raw\`Hi\\n\`
+// 返回 "Hi\\\\\\\\\n"
+
+String.raw\`Hi\\\\n\` === "Hi\\\\\\\\n" // true`,
+        score: 1,
+      },
+      {
+        question: `includes(), startsWith(), endsWith() 有什么用？`,
+        answer: `传统上，JavaScript 只有indexOf方法，可以用来确定一个字符串是否包含在另一个字符串中。ES6 又提供了三种新方法。
+
+includes()：返回布尔值，表示是否找到了参数字符串。
+startsWith()：返回布尔值，表示参数字符串是否在原字符串的头部。
+endsWith()：返回布尔值，表示参数字符串是否在原字符串的尾部。
+let s = 'Hello world!';
+
+s.startsWith('Hello') // true
+s.endsWith('!') // true
+s.includes('o') // true
+这三个方法都支持第二个参数，表示开始搜索的位置。
+
+let s = 'Hello world!';
+
+s.startsWith('world', 6) // true
+s.endsWith('Hello', 5) // true
+s.includes('Hello', 6) // false
+上面代码表示，使用第二个参数n时，endsWith的行为与其他两个方法有所不同。它针对前n个字符，而其他两个方法针对从第n个位置直到字符串结束。`,
+        score: 3,
+      },
+      {
+        question: `y 修饰符 有什么用？`,
+        answer: `除了u修饰符，ES6 还为正则表达式添加了y修饰符，叫做“粘连”（sticky）修饰符。
+
+        y修饰符的作用与g修饰符类似，也是全局匹配，后一次匹配都从上一次匹配成功的下一个位置开始（相当于是头部匹配，/^...(正则式)/）。不同之处在于，g修饰符只要剩余位置中存在匹配就可，而y修饰符确保匹配必须从剩余的第一个位置开始，这也就是“粘连”的涵义。
+        
+var s = 'aaa_aa_a';
+var r1 = /a+/g;
+var r2 = /a+/y;
+
+r1.exec(s) // ["aaa"]
+r2.exec(s) // ["aaa"]
+
+r1.exec(s) // ["aa"]
+r2.exec(s) // null
+
+上面代码有两个正则表达式，一个使用g修饰符，另一个使用y修饰符。这两个正则表达式各执行了两次，第一次执行的时候，两者行为相同，剩余字符串都是_aa_a。由于g修饰没有位置要求，所以第二次执行会返回结果，而y修饰符要求匹配必须从头部开始，所以返回null。`,
+        score: 1,
+      },
+      {
+        question: `数值是否是有限值，数值是否是NaN可以用Number什么方法判断？与传统方法有什么区别？`,
+        answer: `Number对象上，新提供了Number.isFinite()和Number.isNaN()两个方法。
+
+Number.isFinite()用来检查一个数值是否为有限的（finite），即不是Infinity。
+
+Number.isFinite(15); // true
+Number.isFinite(0.8); // true
+Number.isFinite(NaN); // false
+Number.isFinite(Infinity); // false
+Number.isFinite(-Infinity); // false
+Number.isFinite('foo'); // false
+Number.isFinite('15'); // false
+Number.isFinite(true); // false
+注意，如果参数类型不是数值，Number.isFinite一律返回false。
+
+Number.isNaN()用来检查一个值是否为NaN。
+
+Number.isNaN(NaN) // true
+Number.isNaN(15) // false
+Number.isNaN('15') // false
+Number.isNaN(true) // false
+Number.isNaN(9/NaN) // true
+Number.isNaN('true' / 0) // true
+Number.isNaN('true' / 'true') // true
+如果参数类型不是NaN，Number.isNaN一律返回false。
+
+它们与传统的全局方法isFinite()和isNaN()的区别在于，传统方法先调用Number()将非数值的值转为数值，再进行判断，而这两个新方法只对数值有效，Number.isFinite()对于非数值一律返回false, Number.isNaN()只有对于NaN才返回true，非NaN一律返回false。
+
+isFinite(25) // true
+isFinite("25") // true
+Number.isFinite(25) // true
+Number.isFinite("25") // false
+
+isNaN(NaN) // true
+isNaN("NaN") // true
+Number.isNaN(NaN) // true
+Number.isNaN("NaN") // false
+Number.isNaN(1) // false`,
+        score: 2,
+      },
+      {
+        question: `Number.parseInt(), Number.parseFloat()与全局方法有什么区别？`,
+        answer: `没什么区别。ES6 将全局方法parseInt()和parseFloat()，移植到Number对象上面，行为完全保持不变。`,
+        score: 1,
+      },
+      {
+        question: `Math.trunc() 作用？`,
+        answer: `Math.trunc方法用于去除一个数的小数部分，返回整数部分。
+
+Math.trunc(4.1) // 4
+Math.trunc(4.9) // 4
+Math.trunc(-4.1) // -4
+Math.trunc(-4.9) // -4
+Math.trunc(-0.1234) // -0
+对于非数值，Math.trunc内部使用Number方法将其先转为数值。
+
+Math.trunc('123.456') // 123
+Math.trunc(true) //1
+Math.trunc(false) // 0
+Math.trunc(null) // 0
+对于空值和无法截取整数的值，返回NaN。
+
+Math.trunc(NaN);      // NaN
+Math.trunc('foo');    // NaN
+Math.trunc();         // NaN
+Math.trunc(undefined) // NaN
+对于没有部署这个方法的环境，可以用下面的代码模拟。
+
+Math.trunc = Math.trunc || function(x) {
+  return x < 0 ? Math.ceil(x) : Math.floor(x);
+};`,
+        score: 1,
+      },
+      {
+        question: `BigInt 数据类型是什么？`,
+        answer: `ES2020 引入了一种新的数据类型 BigInt（大整数），这是 ECMAScript 的第八种数据类型（另外新增的是 Symbol）。BigInt 只用来表示整数，没有位数的限制，任何位数的整数都可以精确表示。
+        
+为了与 Number 类型区别，BigInt 类型的数据必须添加后缀n。
+
+1234 // 普通整数
+1234n // BigInt
+
+// BigInt 的运算
+1n + 2n // 3n`,
+        score: 1,
+      },
+      {
+        question: `BigInt 数据类型是什么？`,
+        answer: `ES2020 引入了一种新的数据类型 BigInt（大整数），这是 ECMAScript 的第八种数据类型（另外新增的是 Symbol）。BigInt 只用来表示整数，没有位数的限制，任何位数的整数都可以精确表示。
+
+const a = 2172141653n;
+const b = 15346349309n; // 后缀n
+
+// BigInt 可以保持精度
+a * b // 33334444555566667777n
+
+// 普通整数无法保持精度
+Number(a) * Number(b) // 33334444555566670000
+        
+为了与 Number 类型区别，BigInt 类型的数据必须添加后缀n。
+
+1234 // 普通整数
+1234n // BigInt
+
+// BigInt 的运算
+1n + 2n // 3n`,
+        score: 1,
+      },
+      {
+        question: `BigInt 数据类型是什么？`,
+        answer: `ES2020 引入了一种新的数据类型 BigInt（大整数），这是 ECMAScript 的第八种数据类型（另外新增的是 Symbol）。BigInt 只用来表示整数，没有位数的限制，任何位数的整数都可以精确表示。
+        
+为了与 Number 类型区别，BigInt 类型的数据必须添加后缀n。
+
+1234 // 普通整数
+1234n // BigInt
+
+// BigInt 的运算
+1n + 2n // 3n`,
+        score: 1,
+      },
+      {
+        question: `function foo({x, y = 5}) {
+  console.log(x, y);
+}
+
+foo({}) // 
+foo({x: 1}) // 
+foo({x: 1, y: 2}) // 
+foo() // `,
+        answer: `function foo({x, y = 5}) {
+  console.log(x, y);
+}
+
+foo({}) // undefined 5
+foo({x: 1}) // 1 5
+foo({x: 1, y: 2}) // 1 2
+foo() // TypeError: Cannot read property 'x' of undefined
+
+上面代码只使用了对象的解构赋值默认值，没有使用函数参数的默认值。只有当函数foo()的参数是一个对象时，变量x和y才会通过解构赋值生成。如果函数foo()调用时没提供参数，变量x和y就不会生成，从而报错。通过提供函数参数的默认值，就可以避免这种情况。
+
+function foo({x, y = 5} = {}) {
+  console.log(x, y);
+}
+
+foo() // undefined 5`,
+        score: 3,
+      },
+      {
+        question: `// 写法一
+function m1({x = 0, y = 0} = {}) {
+  return [x, y];
+}
+
+// 写法二
+function m2({x, y} = { x: 0, y: 0 }) {
+  return [x, y];
+}
+
+// 函数没有参数的情况
+m1() // 
+m2() // 
+
+// x 和 y 都有值的情况
+m1({x: 3, y: 8}) // 
+m2({x: 3, y: 8}) // 
+
+// x 有值，y 无值的情况
+m1({x: 3}) // 
+m2({x: 3}) // 
+
+// x 和 y 都无值的情况
+m1({}) // 
+m2({}) // 
+
+m1({z: 3}) // 
+m2({z: 3}) // `,
+        answer: `// 写法一
+function m1({x = 0, y = 0} = {}) {
+  return [x, y];
+}
+
+// 写法二
+function m2({x, y} = { x: 0, y: 0 }) {
+  return [x, y];
+}
+
+// 函数没有参数的情况
+m1() // [0, 0]
+m2() // [0, 0]
+
+// x 和 y 都有值的情况
+m1({x: 3, y: 8}) // [3, 8]
+m2({x: 3, y: 8}) // [3, 8]
+
+// x 有值，y 无值的情况
+m1({x: 3}) // [3, 0]
+m2({x: 3}) // [3, undefined]
+
+// x 和 y 都无值的情况
+m1({}) // [0, 0];
+m2({}) // [undefined, undefined]
+
+m1({z: 3}) // [0, 0]
+m2({z: 3}) // [undefined, undefined]`,
+        score: 5,
+      },
+      {
+        question: `function f(x = 1, y) {
+  return [x, y];
+}
+
+f() // 
+f(2) // 
+f(, 1) // 
+f(undefined, 1) // 
+
+// 例二
+function f(x, y = 5, z) {
+  return [x, y, z];
+}
+
+f() // 
+f(1) // 
+f(1, ,2) // 
+f(1, undefined, 2) // `,
+        answer: `function f(x = 1, y) {
+  return [x, y];
+}
+
+f() // [1, undefined]
+f(2) // [2, undefined]
+f(, 1) // 报错
+f(undefined, 1) // [1, 1]
+
+// 例二
+function f(x, y = 5, z) {
+  return [x, y, z];
+}
+
+f() // [undefined, 5, undefined]
+f(1) // [1, 5, undefined]
+f(1, ,2) // 报错
+f(1, undefined, 2) // [1, 5, 2]
+
+上面代码中，有默认值的参数都不是尾参数。这时，无法只省略该参数，而不省略它后面的参数，除非显式输入undefined。
+
+如果传入undefined，将触发该参数等于默认值，null则没有这个效果。`,
+        score: 3,
+      },
+      {
+        question: `箭头函数的作用？有什么注意事项`,
+        answer: `箭头函数使得表达更加简洁。
+        
+注意点：（1）箭头函数没有自己的this对象。对于普通函数来说，内部的this指向函数运行时所在的对象，但是这一点对箭头函数不成立。它没有自己的this对象（不能当作构造函数），内部的this就是定义时上层作用域中的this。也就是说，箭头函数内部的this指向是固定的，相比之下，普通函数的this指向是可变的。
+
+function foo() {
+  setTimeout(() => {
+    console.log('id:', this.id);
+  }, 100);
+}
+
+var id = 21;
+
+foo.call({ id: 42 });
+// id: 42
+上面代码中，setTimeout()的参数是一个箭头函数，这个箭头函数的定义生效是在foo函数生成时，而它的真正执行要等到 100 毫秒后。如果是普通函数，执行时this应该指向全局对象window，这时应该输出21。但是，箭头函数导致this总是指向函数定义生效时所在的对象（本例是{id: 42}），所以打印出来的是42。
+
+（2）不可以当作构造函数，也就是说，不可以对箭头函数使用new命令，否则会抛出一个错误。
+（3）不可以使用arguments对象，该对象在函数体内不存在。如果要用，可以用 rest 参数（也就是自定义的参数数组）代替。
+（4）不可以使用yield命令，因此箭头函数不能用作 Generator 函数。`,
+        score: 5,
+      },
+      {
+        question: `function Timer() {
+  this.s1 = 0;
+  this.s2 = 0;
+  // 箭头函数
+  setInterval(() => this.s1++, 1000);
+  // 普通函数
+  setInterval(function () {
+    this.s2++;
+  }, 1000);
+}
+
+var timer = new Timer();
+
+setTimeout(() => console.log('s1: ', timer.s1), 3100);
+setTimeout(() => console.log('s2: ', timer.s2), 3100);
+// `,
+        answer: `function Timer() {
+  this.s1 = 0;
+  this.s2 = 0;
+  // 箭头函数
+  setInterval(() => this.s1++, 1000);
+  // 普通函数
+  setInterval(function () {
+    this.s2++;
+  }, 1000);
+}
+
+var timer = new Timer();
+
+setTimeout(() => console.log('s1: ', timer.s1), 3100);
+setTimeout(() => console.log('s2: ', timer.s2), 3100);
+// s1: 3
+// s2: 0
+
+上面代码中，Timer函数内部设置了两个定时器，分别使用了箭头函数和普通函数。前者的this绑定定义时所在的作用域（即Timer函数），后者的this指向运行时所在的作用域（即全局对象，普通函数作用域是全局对象）。所以，3100 毫秒之后，timer.s1被更新了 3 次，而timer.s2一次都没更新。
+箭头函数实际上可以让this指向固定化，绑定this使得它不再可变，这种特性很有利于封装回调函数。
+
+这种写法，就类似于：
+// ES6
+function foo() {
+  setTimeout(() => {
+    console.log('id:', this.id);
+  }, 100);
+}
+
+// ES5
+function foo() {
+  var _this = this;
+
+  setTimeout(function () {
+    console.log('id:', _this.id);
+  }, 100);
+}`,
+        score: 3,
+        img: "箭头函数.png",
+      },
+      {
+        question: `function foo() {
+  return () => {
+    return () => {
+      return () => {
+        console.log('id:', this.id);
+      };
+    };
+  };
+}
+
+var f = foo.call({id: 1});
+
+var t1 = f.call({id: 2})()(); // 
+var t2 = f().call({id: 3})(); // 
+var t3 = f()().call({id: 4}); // `,
+        answer: `function foo() {
+  return () => {
+    return () => {
+      return () => {
+        console.log('id:', this.id);
+      };
+    };
+  };
+}
+
+var f = foo.call({id: 1});
+
+var t1 = f.call({id: 2})()(); // id: 1
+var t2 = f().call({id: 3})(); // id: 1
+var t3 = f()().call({id: 4}); // id: 1
+
+this的指向只有一个，就是函数foo的this，这是因为所有的内层函数都是箭头函数，都没有自己的this，它们的this其实都是最外层foo函数的this。所以不管怎么嵌套，t1、t2、t3都输出同样的结果。如果这个例子的所有内层函数都写成普通函数，那么每个函数的this都指向运行时所在的不同对象。
+
+除了this，以下三个变量在箭头函数之中也是不存在的，指向外层函数的对应变量：arguments、super、new.target。也不能用call()、apply()、bind()这些方法去改变this的指向。`,
+        score: 3,
+        img: "箭头函数.png",
+      },
+      {
+        question: `什么是尾调用，有什么用？`,
+        answer: `尾调用（Tail Call）是函数式编程的一个重要概念，本身非常简单，一句话就能说清楚，就是指某个函数的最后一步是调用另一个函数。
+
+function f(x){
+  return g(x);
+}
+上面代码中，函数f的最后一步是调用函数g，这就叫尾调用。`,
+        score: 3,
+      },
+      {
+        question: `const [first, ...rest] = [1, 2, 3, 4, 5];
+first // 
+rest  // 
+
+const [first, ...rest] = [];
+first // 
+rest  // 
+
+const [first, ...rest] = ["foo"];
+first  // 
+rest   // 
+
+'x\\uD83D\\uDE80y'.length // 
+[...'x\\uD83D\\uDE80y'].length // `,
+        answer: `const [first, ...rest] = [1, 2, 3, 4, 5];
+first // 1
+rest  // [2, 3, 4, 5]
+
+const [first, ...rest] = [];
+first // undefined
+rest  // []
+
+const [first, ...rest] = ["foo"];
+first  // "foo"
+rest   // []
+
+'x\\uD83D\\uDE80y'.length // 4
+[...'x\\uD83D\\uDE80y'].length // 3`,
+        score: 3,
+      },
+      {
+        question: `Array什么方法可以转数组？`,
+        answer: `Array.from()方法用于将两类对象转为真正的数组：类似数组的对象（array-like object）和可遍历（iterable）的对象（包括 ES6 新增的数据结构 Set 和 Map）。
+
+Array.from()还可以接受一个函数作为第二个参数，作用类似于数组的map()方法，用来对每个元素进行处理，将处理后的值放入返回的数组。
+
+Array.from(arrayLike, x => x * x);
+// 等同于
+Array.from(arrayLike).map(x => x * x);
+
+Array.from([1, 2, 3], (x) => x * x)
+// [1, 4, 9]
+
+下面是一个类似数组的对象，Array.from()将它转为真正的数组。
+
+let arrayLike = {
+    '0': 'a',
+    '1': 'b',
+    '2': 'c',
+    length: 3
+};
+
+// ES5 的写法
+var arr1 = [].slice.call(arrayLike); // ['a', 'b', 'c']
+
+// ES6 的写法
+let arr2 = Array.from(arrayLike); // ['a', 'b', 'c']
+
+
+除此之外，Array.of()方法也可以转数组，用的人相对较少，主要是弥补过去new Array的不足
+
+Array.of() // []
+Array.of(undefined) // [undefined]
+Array.of(1) // [1]
+Array.of(1, 2) // [1, 2]`,
+        score: 5,
+      },
+      {
+        question: `copyWithin()作用？`,
+        answer: `数组实例的copyWithin()方法，在当前数组内部，将指定位置的成员复制到其他位置（会覆盖原有成员），然后返回当前数组。也就是说，使用这个方法，会修改当前数组。
+
+Array.prototype.copyWithin(target, start = 0, end = this.length)
+它接受三个参数。
+
+target（必需）：从该位置开始替换数据。如果为负值，表示倒数。
+start（可选）：从该位置开始读取数据，默认为 0。如果为负值，表示从末尾开始计算。
+end（可选）：到该位置前停止读取数据，默认等于数组长度。如果为负值，表示从末尾开始计算。
+这三个参数都应该是数值，如果不是，会自动转为数值。
+
+[1, 2, 3, 4, 5].copyWithin(0, 3)
+// [4, 5, 3, 4, 5]
+上面代码表示将从 3 号位直到数组结束的成员（4 和 5），复制到从 0 号位开始的位置，结果覆盖了原来的 1 和 2。`,
+        score: 3,
+      },
+      {
+        question: `[1, 2, 3, 4, 5].copyWithin(0, 3, 4)
+// 
+
+[1, 2, 3, 4, 5].copyWithin(0, -2, -1)
+// 
+
+[].copyWithin.call({length: 5, 3: 1}, 0, 3)
+// 
+
+let i32a = new Int32Array([1, 2, 3, 4, 5]);
+i32a.copyWithin(0, 2);
+// 
+
+[].copyWithin.call(new Int32Array([1, 2, 3, 4, 5]), 0, 3, 4);
+// `,
+        answer: `// 将3号位复制到0号位
+[1, 2, 3, 4, 5].copyWithin(0, 3, 4)
+// [4, 2, 3, 4, 5]
+
+// -2相当于3号位，-1相当于4号位
+[1, 2, 3, 4, 5].copyWithin(0, -2, -1)
+// [4, 2, 3, 4, 5]
+
+// 将3号位复制到0号位
+[].copyWithin.call({length: 5, 3: 1}, 0, 3)
+// {0: 1, 3: 1, length: 5}
+
+// 将2号位到数组结束，复制到0号位
+let i32a = new Int32Array([1, 2, 3, 4, 5]);
+i32a.copyWithin(0, 2);
+// Int32Array [3, 4, 5, 4, 5]
+
+// 对于没有部署 TypedArray 的 copyWithin 方法的平台
+// 需要采用下面的写法
+[].copyWithin.call(new Int32Array([1, 2, 3, 4, 5]), 0, 3, 4);
+// Int32Array [4, 2, 3, 4, 5]`,
+        score: 3,
+      },
+      {
+        question: `find()，findIndex()，findLast()，findLastIndex()作用？`,
+        answer: `数组实例的find()方法，用于找出第一个符合条件的数组成员。它的参数是一个回调函数，所有数组成员依次执行该回调函数，直到找出第一个返回值为true的成员，然后返回该成员。如果没有符合条件的成员，则返回undefined。
+
+[1, 4, -5, 10].find((n) => n < 0)
+// -5
+
+[1, 5, 10, 15].find(function(value, index, arr) {
+  return value > 9;
+}) // 10
+
+数组实例的findIndex()方法的用法与find()方法非常类似，返回第一个符合条件的数组成员的位置，如果所有成员都不符合条件，则返回-1。
+
+ES2022 新增了两个方法findLast()和findLastIndex()，从数组的最后一个成员开始，依次向前检查，其他都保持不变。`,
+        score: 5,
+      },
+      {
+        question: `fill()作用？`,
+        answer: `fill方法使用给定值，填充一个数组。
+
+['a', 'b', 'c'].fill(7)
+// [7, 7, 7]
+
+new Array(3).fill(7)
+// [7, 7, 7]
+上面代码表明，fill方法用于空数组的初始化非常方便。数组中已有的元素，会被全部抹去。
+
+fill方法还可以接受第二个和第三个参数，用于指定填充的起始位置和结束位置。
+
+['a', 'b', 'c'].fill(7, 1, 2)
+// ['a', 7, 'c']
+上面代码表示，fill方法从 1 号位开始，向原数组填充 7，到 2 号位之前结束。
+
+注意，如果填充的类型为对象，那么被赋值的是同一个内存地址的对象，而不是深拷贝对象。`,
+        score: 2,
+      },
+      {
+        question: `entries()，keys() 和 values()可以使用什么方式进行遍历，除了循环外，还可以通过什么方法手动遍历？`,
+        answer: `ES6 提供三个新的方法——entries()，keys()和values()——用于遍历数组。它们都返回一个遍历器对象（详见《Iterator》一章），可以用for...of循环进行遍历，唯一的区别是keys()是对键名的遍历、values()是对键值的遍历，entries()是对键值对的遍历。
+
+for (let index of ['a', 'b'].keys()) {
+  console.log(index);
+}
+// 0
+// 1
+
+for (let elem of ['a', 'b'].values()) {
+  console.log(elem);
+}
+// 'a'
+// 'b'
+
+for (let [index, elem] of ['a', 'b'].entries()) {
+  console.log(index, elem);
+}
+// 0 "a"
+// 1 "b"
+如果不使用for...of循环，可以手动调用遍历器对象的next方法，进行遍历。
+
+let letter = ['a', 'b', 'c'];
+let entries = letter.entries();
+console.log(entries.next().value); // [0, 'a']
+console.log(entries.next().value); // [1, 'b']
+console.log(entries.next().value); // [2, 'c']`,
+        score: 4,
+      },
+      {
+        question: `includes()相较于indexOf()有什么优点？`,
+        answer: `indexOf方法有两个缺点，一是不够语义化，它的含义是找到参数值的第一个出现位置，所以要去比较是否不等于-1，表达起来不够直观。二是，它内部使用严格相等运算符（===）进行判断，这会导致对NaN的误判。
+
+[NaN].indexOf(NaN)
+// -1
+
+includes使用的是不一样的判断算法，就没有这个问题。
+
+let arr = [undefined, null, NaN];
+  console.log(arr.includes(undefined), arr.includes(null), arr.includes(NaN));
+// true true true`,
+        score: 2,
+      },
+      {
+        question: `Array.prototype.flat()有什么用？`,
+        answer: `Array.prototype.flat()用于将嵌套的数组“拉平”，变成一维的数组。该方法返回一个新数组，对原数据没有影响。
+
+[1, 2, [3, 4]].flat()
+// [1, 2, 3, 4]
+
+[1, 2, [3, [4, 5]]].flat(2)
+// [1, 2, 3, 4, 5]
+
+[1, [2, [3]]].flat(Infinity)
+// [1, 2, 3]`,
+        score: 2,
+      },
+      {
+        question: `如果我要对一个数组进行分组，可以使用Array中的什么方法？`,
+        answer: `group()的参数是一个分组函数，原数组的每个成员都会依次执行这个函数，确定自己是哪一个组。
+
+const array = [1, 2, 3, 4, 5];
+
+array.group((num, index, array) => {
+  return num % 2 === 0 ? 'even': 'odd';
+});
+// { odd: [1, 3, 5], even: [2, 4] }
+
+group()的分组函数可以接受三个参数，依次是数组的当前成员、该成员的位置序号、原数组（上例是num、index和array）。分组函数的返回值应该是字符串（或者可以自动转为字符串），以作为分组后的组名。
+
+group()的返回值是一个对象，该对象的键名就是每一组的组名，即分组函数返回的每一个字符串（上例是even和odd）；该对象的键值是一个数组，包括所有产生当前键名的原数组成员。
+
+下面是另一个例子。
+
+[6.1, 4.2, 6.3].group(Math.floor)
+// { '4': [4.2], '6': [6.1, 6.3] }
+上面示例中，Math.floor作为分组函数，对原数组进行分组。它的返回值原本是数值，这时会自动转为字符串，作为分组的组名。原数组的成员根据分组函数的运行结果，进入对应的组。
+
+groupToMap()的作用和用法与group()完全一致，唯一的区别是返回值是一个 Map 结构，而不是对象。Map 结构的键名可以是各种值，所以不管分组函数返回什么值，都会直接作为组名（Map 结构的键名），不会强制转为字符串。这对于分组函数返回值是对象的情况，尤其有用。
+
+const array = [1, 2, 3, 4, 5];
+
+const odd  = { odd: true };
+const even = { even: true };
+array.groupToMap((num, index, array) => {
+  return num % 2 === 0 ? even: odd;
+});
+//  Map { {odd: true}: [1, 3, 5], {even: true}: [2, 4] }`,
+        score: 5,
+      },
+      {
+        question: `数组循环时，哪些情况下会遍历空位，哪些情况下不会？`,
+        answer: `ES5 对空位的处理，已经很不一致了，大多数情况下会忽略空位。
+
+forEach(), filter(), reduce(), every(), for...in循环 和some()都会跳过空位。
+map()会跳过空位，但会保留这个值
+join()和toString()会将空位视为undefined，而undefined和null会被处理成空字符串。
+
+// map方法
+[,'a'].map(x => 1) // [,1]
+
+// join方法
+[,'a',undefined,null].join('#') // "#a##"
+
+// toString方法
+[,'a',undefined,null].toString() // ",a,,"
+
+ES6 则是明确将空位转为undefined。
+
+Array.from()方法会将数组的空位，转为undefined，也就是说，这个方法不会忽略空位。
+
+Array.from(['a',,'b'])
+// [ "a", undefined, "b" ]
+扩展运算符（...）也会将空位转为undefined。
+
+[...['a',,'b']]
+// [ "a", undefined, "b" ]
+copyWithin()会连空位一起拷贝。
+
+[,'a','b',,].copyWithin(2,0) // [,"a",,"a"]
+fill()会将空位视为正常的数组位置。
+
+new Array(3).fill('a') // ["a","a","a"]
+for...of循环也会遍历空位。
+
+let arr = [, ,];
+for (let i of arr) {
+  console.log(1);
+}
+// 1
+// 1
+上面代码中，数组arr有两个空位，for...of并没有忽略它们。如果改成map()方法遍历，空位是会跳过的。
+
+entries()、keys()、values()、find()和findIndex()会将空位处理成undefined。
+
+// entries()
+[...[,'a'].entries()] // [[0,undefined], [1,"a"]]
+
+// keys()
+[...[,'a'].keys()] // [0,1]
+
+// values()
+[...[,'a'].values()] // [undefined,"a"]
+
+// find()
+[,'a'].find(x => true) // undefined
+
+// findIndex()
+[,'a'].findIndex(x => true) // 0
+由于空位的处理规则非常不统一，所以建议避免出现空位。`,
+        score: 2,
+      },
+      {
+        question: `简写的对象函数不能用在什么地方？
+f() {...}`,
+        answer: `简写的对象方法不能用作构造函数，会报错。
+
+const obj = {
+  f() {
+    this.foo = 'bar';
+  }
+};
+
+new obj.f() // 报错
+上面代码中，f是一个简写的对象方法，所以obj.f不能当作构造函数使用。
+
+虽然如此，但简写方法可以用super关键字，对象的普通方法或箭头函数中使用反而会报错：
+
+const proto = {
+  foo: 'hello'
+};
+
+const obj = {
+  foo: 'world',
+  find() {
+    return super.foo;
+  }
+};
+
+Object.setPrototypeOf(obj, proto);
+obj.find() // "hello"`,
+        score: 1,
+      },
+      {
+        question: `使用属性名表示法xx[xxx]，应注意什么？`,
+        answer: `属性名表达式与简洁表示法，不能同时使用，会报错。
+
+// 报错（':' expected.）
+const foo = 'bar';
+const bar = 'abc';
+const baz = { [foo] };
+
+// 正确
+const foo = 'bar';
+const baz = { [foo]: 'abc'};
+
+const bar = 'abc';
+const baz = { bar };
+
+注意，属性名表达式如果是一个对象，默认情况下会自动将对象转为字符串[object Object]，这一点要特别小心。
+
+const keyA = {a: 1};
+const keyB = {b: 2};
+
+const myObject = {
+  [keyA]: 'valueA',
+  [keyB]: 'valueB'
+};
+
+myObject // Object {[object Object]: "valueB"}`,
+        score: 2,
+      },
+      {
+        question: `目前，有哪四个遍历操作会忽略enumerable为false的属性？`,
+        answer: `for...in循环：只遍历对象自身的和继承的可枚举的属性。
+Object.keys()：返回对象自身的所有可枚举的属性的键名。
+JSON.stringify()：只串行化对象自身的可枚举的属性。
+Object.assign()： 忽略enumerable为false的属性，只拷贝对象自身的可枚举的属性。
+这四个操作之中，前三个是 ES5 就有的，最后一个Object.assign()是 ES6 新增的。其中，只有for...in会返回继承的属性，其他三个方法都会忽略继承的属性，只处理对象自身的属性。实际上，引入“可枚举”（enumerable）这个概念的最初目的，就是让某些属性可以规避掉for...in操作，不然所有内部属性和方法都会被遍历到。比如，对象原型的toString方法，以及数组的length属性，就通过“可枚举性”，从而避免被for...in遍历到。
+
+另外，ES6 规定，所有 Class 的原型的方法都是不可枚举的。
+总的来说，操作中引入继承的属性会让问题复杂化，大多数时候，我们只关心对象自身的属性。所以，尽量不要用for...in循环，而用Object.keys()代替。`,
+        score: 2,
+      },
+      {
+        question: `ES6遍历对象属性，有哪些方法，哪些方法可以用于遍历Symbol？`,
+        answer: `（1）for...in
+
+for...in循环遍历对象自身的和继承的可枚举属性（不含 Symbol 属性）。
+
+（2）Object.keys(obj)
+
+Object.keys返回一个数组，包括对象自身的（不含继承的）所有可枚举属性（不含 Symbol 属性）的键名。
+
+（3）Object.getOwnPropertyNames(obj)
+
+Object.getOwnPropertyNames返回一个数组，包含对象自身的所有属性（不含 Symbol 属性，但是包括不可枚举属性）的键名。
+
+（4）Object.getOwnPropertySymbols(obj)
+
+Object.getOwnPropertySymbols返回一个数组，包含对象自身的所有 Symbol 属性的键名。
+
+（5）Reflect.ownKeys(obj)
+
+Reflect.ownKeys返回一个数组，包含对象自身的（不含继承的）所有键名，不管键名是 Symbol 或字符串，也不管是否可枚举。
+
+以上的 5 种方法遍历对象的键名，都遵守同样的属性遍历的次序规则。
+
+首先遍历所有数值键，按照数值升序排列。
+其次遍历所有字符串键，按照加入时间升序排列。
+最后遍历所有 Symbol 键，按照加入时间升序排列。
+
+Reflect.ownKeys({ [Symbol()]:0, b:0, 10:0, 2:0, a:0 })
+// ['2', '10', 'b', 'a', Symbol()]
+上面代码中，Reflect.ownKeys方法返回一个数组，包含了参数对象的所有属性。这个数组的属性次序是这样的，首先是数值属性2和10，其次是字符串属性b和a，最后是 Symbol 属性。`,
+        score: 5,
+      },
+      {
+        question: `指向当前对象的原型对象，用什么关键字？`,
+        answer: `this关键字总是指向函数所在的当前对象，ES6 又新增了另一个类似的关键字super，指向当前对象的原型对象。
+
+const proto = {
+  foo: 'hello'
+};
+
+const obj = {
+  foo: 'world',
+  find() {
+    return super.foo;
+  }
+};
+
+Object.setPrototypeOf(obj, proto);
+obj.find() // "hello"
+
+上面代码中，对象obj.find()方法之中，通过super.foo引用了原型对象proto的foo属性。
+
+注意，super关键字表示原型对象时，只能用在【对象的方法】之中，用在其他地方都会报错。
+
+// 报错
+const obj = {
+  foo: super.foo
+}
+
+// 报错
+const obj = {
+  foo: () => super.foo
+}
+
+// 报错
+const obj = {
+  foo: function () {
+    return super.foo
+  }
+}
+
+上面三种super的用法都会报错，因为对于 JavaScript 引擎来说，这里的super都没有用在对象的方法之中。第一种写法是super用在属性里面，第二种和第三种写法是super用在一个函数里面，然后赋值给foo属性。目前，只有对象方法的简写法可以让 JavaScript 引擎确认，定义的是对象的方法。`,
+        score: 2,
+      },
+      {
+        question: `let { x, y, ...z } = { x: 1, y: 2, a: 3, b: 4 };
+x // 
+y // 
+z // 
+
+let { ...z } = null; // 
+let { ...z } = undefined; // 
+
+let { ...x, y, z } = someObject; // 
+let { x, ...y, ...z } = someObject; // 
+
+let obj = { a: { b: 1 } };
+let { ...x } = obj;
+obj.a.b = 2;
+x.a.b // `,
+        answer: `let { x, y, ...z } = { x: 1, y: 2, a: 3, b: 4 };
+x // 1
+y // 2
+z // { a: 3, b: 4 }
+
+let { ...z } = null; // 运行时错误
+let { ...z } = undefined; // 运行时错误
+
+let { ...x, y, z } = someObject; // 句法错误
+let { x, ...y, ...z } = someObject; // 句法错误
+
+let obj = { a: { b: 1 } };
+let { ...x } = obj;
+obj.a.b = 2;
+x.a.b // 2
+
+注意，解构赋值的拷贝是浅拷贝，即如果一个键的值是复合类型的值（数组、对象、函数）、那么解构赋值拷贝的是这个值的引用，而不是这个值的副本。`,
+        score: 4,
+      },
+      {
+        question: `let o1 = { a: 1 };
+let o2 = { b: 2 };
+o2.__proto__ = o1;
+let { ...o3 } = o2;
+o3 // 
+o3.a // 
+
+const o = Object.create({ x: 1, y: 2 });
+o.z = 3;
+
+let { x, ...newObj } = o;
+let { y, z } = newObj;
+x // 
+y // 
+z // 
+
+let { x, ...{ y, z } } = o; //`,
+        answer: `let o1 = { a: 1 };
+let o2 = { b: 2 };
+o2.__proto__ = o1;
+let { ...o3 } = o2;
+o3 // { b: 2 }
+o3.a // undefined
+
+扩展运算符的解构赋值，不能复制继承自原型对象的属性。
+
+const o = Object.create({ x: 1, y: 2 });
+o.z = 3;
+
+let { x, ...newObj } = o;
+let { y, z } = newObj;
+x // 1
+y // undefined
+z // 3
+
+上面代码中，变量x是单纯的解构赋值，所以可以读取对象o继承的属性（类似你数组用原型length的方法）；变量y和z是扩展运算符的解构赋值，只能读取对象o自身的属性，所以变量z可以赋值成功，变量y取不到值。ES6 规定，变量声明语句之中，如果使用解构赋值，扩展运算符后面必须是一个变量名，而不能是一个解构赋值表达式，所以上面代码引入了中间变量newObj，如果写成下面这样会报错。
+
+ES6 规定，变量声明语句之中，如果使用解构赋值，扩展运算符后面必须是一个变量名，而不能是一个解构赋值表达式，所以上面代码引入了中间变量newObj，如果写成下面这样会报错。
+
+let { x, ...{ y, z } } = o;
+// SyntaxError: ... must be followed by an identifier in declaration contexts`,
+        score: 4,
+      },
+      {
+        question: `let z = { a: 3, b: 4 };
+let n = { ...z };
+n // 
+
+let foo = { ...['a', 'b', 'c'] };
+foo // 
+
+{...{}, a: 1}
+// 
+
+{...1} // 
+
+{...undefined} // 
+
+{...null} // `,
+        answer: `let z = { a: 3, b: 4 };
+let n = { ...z };
+n // { a: 3, b: 4 }
+
+let foo = { ...['a', 'b', 'c'] };
+foo // {0: "a", 1: "b", 2: "c"}
+
+{...{}, a: 1}
+// { a: 1 }
+
+// 等同于 {...Object(1)}
+{...1} // {}
+
+// 等同于 {...Object(undefined)}
+{...undefined} // {}
+
+// 等同于 {...Object(null)}
+{...null} // {}`,
+        score: 4,
+      },
+      {
+        question: `Object.is与严格相等运算符有什么不同？`,
+        answer: `1、+0 -0 不相等
+2、NaN 自身是相等的
+
+值得一提的是，严格相等的时候，undefined和null自身也是相等的`,
+        score: 2,
+      },
+      {
+        question: `Object.assign()用法？`,
+        answer: `用于对象的合并，将源对象（source）的所有可枚举属性，复制到目标对象（target）。
+        
+const target = { a: 1 };
+
+const source1 = { b: 2 };
+const source2 = { c: 3 };
+
+Object.assign(target, source1, source2);
+target // {a:1, b:2, c:3}
+Object.assign()方法的第一个参数是目标对象，后面的参数都是源对象。
+
+注意，如果目标对象与源对象有同名属性，或多个源对象有同名属性，则后面的属性会覆盖前面的属性。
+
+const target = { a: 1, b: 1 };
+
+const source1 = { b: 2, c: 2 };
+const source2 = { c: 3 };
+
+Object.assign(target, source1, source2);
+target // {a:1, b:2, c:3}
+如果只有一个参数，Object.assign()会直接返回该参数。
+
+const obj = {a: 1};
+Object.assign(obj) === obj // true
+
+属性名为 Symbol 值的属性，也会被Object.assign()拷贝。
+
+Object.assign({ a: 'b' }, { [Symbol('c')]: 'd' })
+// { a: 'b', Symbol(c): 'd' }`,
+        score: 2,
+      },
+      {
+        question: `Object.assign(undefined) // 
+Object.assign(null) // 
+        
+let obj = {a: 1};
+Object.assign(obj, undefined) === obj // 
+Object.assign(obj, null) === obj // 
+
+const v1 = 'abc';
+const v2 = true;
+const v3 = 10;
+
+const obj = Object.assign({}, v1, v2, v3);
+console.log(obj); // { "0": "a", "1": "b", "2": "c" }`,
+        answer: `Object.assign(undefined) // 报错
+Object.assign(null) // 报错
+        
+let obj = {a: 1};
+Object.assign(obj, undefined) === obj // true
+Object.assign(obj, null) === obj // true
+
+const v1 = 'abc';
+const v2 = true;
+const v3 = 10;
+
+const obj = Object.assign({}, v1, v2, v3);
+console.log(obj); // { "0": "a", "1": "b", "2": "c" }`,
+        score: 3,
+      },
+      {
+        question: `Object.assign([1, 2, 3], [4, 5]) // 
+
+const source = {
+  get foo() { return 1 }
+};
+const target = {};
+
+Object.assign(target, source)
+// `,
+        answer: `Object.assign()可以用来处理数组，但是会把数组视为对象。
+
+Object.assign([1, 2, 3], [4, 5])
+// [4, 5, 3]
+上面代码中，Object.assign()把数组视为属性名为 0、1、2 的对象，因此源数组的 0 号属性4覆盖了目标数组的 0 号属性1。
+
+Object.assign()只能进行值的复制，如果要复制的值是一个取值函数，那么将求值后再复制。
+
+const source = {
+  get foo() { return 1 }
+};
+const target = {};
+
+Object.assign(target, source)
+// { foo: 1 }
+上面代码中，source对象的foo属性是一个取值函数，Object.assign()不会复制这个取值函数，只会拿到值以后，将这个值复制过去。`,
+        score: 3,
+      },
+      {
+        question: `如果我想知道该对象所有属性描述，可以用什么方法？`,
+        answer: `Object.getOwnPropertyDescriptors()
+        
+const obj = {
+  foo: 123,
+  get bar() { return 'abc' }
+};
+
+Object.getOwnPropertyDescriptors(obj)
+// { foo:
+//    { value: 123,
+//      writable: true,
+//      enumerable: true,
+//      configurable: true },
+//   bar:
+//    { get: [Function: get bar],
+//      set: undefined,
+//      enumerable: true,
+//      configurable: true } }`,
+        score: 2,
+      },
+      {
+        question: `为什么不建议使用__proto__属性？`,
+        answer: `该属性没有写入 ES6 的正文，而是写入了附录，原因是__proto__前后的双下划线，说明它本质上是一个内部属性，而不是一个正式的对外的 API，只是由于浏览器广泛支持，才被加入了 ES6。标准明确规定，只有浏览器必须部署这个属性，其他运行环境不一定需要部署，而且新的代码最好认为这个属性是不存在的。因此，无论从语义的角度，还是从兼容性的角度，都不要使用这个属性，而是使用下面的Object.setPrototypeOf()（写操作）、Object.getPrototypeOf()（读操作）、Object.create()（生成操作）代替。`,
+        score: 2,
+      },
+      {
+        question: `如果将一个键值对数组转换成对象，可以用什么方法？`,
+        answer: `Object.fromEntries()方法是Object.entries()的逆操作，用于将一个键值对数组转为对象。
+
+Object.fromEntries([
+  ['foo', 'bar'],
+  ['baz', 42]
+])
+// { foo: "bar", baz: 42 }
+
+该方法的主要目的，是将键值对的数据结构还原为对象，因此特别适合将 Map 结构转为对象。
+
+// 例一
+const entries = new Map([
+  ['foo', 'bar'],
+  ['baz', 42]
+]);
+
+Object.fromEntries(entries)
+// { foo: "bar", baz: 42 }
+
+// 例二
+const map = new Map().set('foo', true).set('bar', false);
+Object.fromEntries(map)
+// { foo: true, bar: false }`,
+        score: 2,
+      },
     ],
   },
+  {
+    name: "Symbol",
+    test: "js ES6基础",
+    visible: false,
+    subject: [
+      {
+        question: `Symbol是什么？`,
+        answer: `ES6 引入了一种新的原始数据类型Symbol，表示独一无二的值。它属于 JavaScript 语言的原生数据类型之一，其他数据类型是：undefined、null、布尔值（Boolean）、字符串（String）、数值（Number）、大整数（BigInt）、对象（Object）。
+
+Symbol 值通过Symbol()函数生成。这就是说，对象的属性名现在可以有两种类型，一种是原来就有的字符串，另一种就是新增的 Symbol 类型。凡是属性名属于 Symbol 类型，就都是独一无二的，可以保证不会与其他属性名产生冲突。
+
+let s = Symbol();
+
+typeof s
+// "symbol"
+上面代码中，变量s就是一个独一无二的值。typeof运算符的结果，表明变量s是 Symbol 数据类型，而不是字符串之类的其他类型。
+
+注意，Symbol()函数前不能使用new命令，否则会报错。这是因为生成的 Symbol 是一个原始类型的值，不是对象，所以不能使用new命令来调用。另外，由于 Symbol 值不是对象，所以也不能添加属性。基本上，它是一种类似于字符串的数据类型。`,
+        score: 3,
+      },
+      {
+        question: `Symbol里面的参数如果是对象，会返回什么？`,
+        answer: `Symbol()函数可以接受一个字符串作为参数，表示对 Symbol 实例的描述。这主要是为了在控制台显示，或者转为字符串时，比较容易区分。
+
+let s1 = Symbol('foo');
+let s2 = Symbol('bar');
+
+s1 // Symbol(foo)
+s2 // Symbol(bar)
+
+s1.toString() // "Symbol(foo)"
+s2.toString() // "Symbol(bar)"
+
+如果 Symbol 的参数是一个对象，就会调用该对象的toString()方法，将其转为字符串，然后才生成一个 Symbol 值。
+
+const obj = {
+  toString() {
+    return 'abc';
+  }
+};
+const sym = Symbol(obj);
+sym // Symbol(abc)
+注意，Symbol()函数的参数只是表示对当前 Symbol 值的描述，因此相同参数的Symbol函数的返回值是不相等的。`,
+        score: 2,
+      },
+      {
+        question: `Symbol与其他类型的值运算，会怎么样？`,
+        answer: `Symbol 值不能与其他类型的值进行运算，会报错。
+
+let sym = Symbol('My symbol');
+
+"your symbol is " + sym
+// TypeError: can't convert symbol to string
+\`your symbol is \${sym}\`
+// TypeError: can't convert symbol to string
+
+另外，Symbol 值也可以转为布尔值，但是不能转为数值。
+
+let sym = Symbol();
+Boolean(sym) // true
+!sym  // false
+
+if (sym) {
+  // ...
+}
+
+Number(sym) // TypeError
+sym + 2 // TypeError`,
+        score: 2,
+      },
+      {
+        question: `Symbol与其他类型的值运算，会怎么样？`,
+        answer: `Symbol 值不能与其他类型的值进行运算，会报错。
+
+let sym = Symbol('My symbol');
+
+"your symbol is " + sym
+// TypeError: can't convert symbol to string
+\`your symbol is \${sym}\`
+// TypeError: can't convert symbol to string
+
+另外，Symbol 值也可以转为布尔值，但是不能转为数值。
+
+let sym = Symbol();
+Boolean(sym) // true
+!sym  // false
+
+if (sym) {
+  // ...
+}
+
+Number(sym) // TypeError
+sym + 2 // TypeError`,
+        score: 2,
+      },
+      {
+        question: `使用symbol属性名有哪些注意事项？`,
+        answer: `Symbol 值作为对象属性名时，不能用点运算符。在对象的内部，使用 Symbol 值定义属性时，Symbol 值必须放在方括号之中。
+
+const mySymbol = Symbol();
+a[mySymbol]
+
+let s = Symbol();
+
+let obj = {
+  [s]: function (arg) { ... }
+};
+`,
+        score: 3,
+      },
+      {
+        question: `常量使用symbol属性有什么好处？`,
+        answer: `const COLOR_RED    = Symbol();
+const COLOR_GREEN  = Symbol();
+
+function getComplement(color) {
+  switch (color) {
+    case COLOR_RED:
+      return COLOR_GREEN;
+    case COLOR_GREEN:
+      return COLOR_RED;
+    default:
+      throw new Error('Undefined color');
+    }
+}
+
+常量使用 Symbol 值最大的好处，就是其他任何值都不可能有相同的值了，因此可以保证上面的switch语句会按设计的方式工作。
+还有一点需要注意，Symbol 值作为属性名时，该属性还是公开属性（可以被getOwnPropertySymbols查到），不是私有属性。`,
+        score: 2,
+      },
+      {
+        question: `如果想要使用同一个symbol值，可以怎么做？`,
+        answer: `有时，我们希望重新使用同一个 Symbol 值，Symbol.for()方法可以做到这一点。它接受一个字符串作为参数，然后搜索有没有以该参数作为名称的 Symbol 值。如果有，就返回这个 Symbol 值，否则就新建一个以该字符串为名称的 Symbol 值，并将其注册到全局。
+
+let s1 = Symbol.for('foo');
+let s2 = Symbol.for('foo');
+
+s1 === s2 // true
+
+上面代码中，s1和s2都是 Symbol 值，但是它们都是由同样参数的Symbol.for方法生成的，所以实际上是同一个值。
+
+Symbol.for()与Symbol()这两种写法，都会生成新的 Symbol。它们的区别是，前者会被登记在全局环境中供搜索，后者不会。Symbol.for()不会每次调用就返回一个新的 Symbol 类型的值，而是会先检查给定的key是否已经存在，如果不存在才会新建一个值。比如，如果你调用Symbol.for("cat")30 次，每次都会返回同一个 Symbol 值，但是调用Symbol("cat")30 次，会返回 30 个不同的 Symbol 值。
+
+Symbol.keyFor()方法返回一个已登记的 Symbol 类型值的key。
+
+let s1 = Symbol.for("foo");
+Symbol.keyFor(s1) // "foo"`,
+        score: 2,
+      },
+    ]
+  },
+  {
+    name: "Set和Map",
+    test: "js ES6基础",
+    visible: false,
+    subject: [
+      {
+        question: `Set是什么？`,
+        answer: `ES6 提供了新的数据结构 Set。它类似于数组，但是成员的值都是唯一的，没有重复的值。
+
+Set本身是一个构造函数，用来生成 Set 数据结构。
+
+const s = new Set();
+
+[2, 3, 5, 4, 5, 2, 2].forEach(x => s.add(x));
+
+for (let i of s) {
+  console.log(i);
+}
+// 2 3 5 4
+
+上面代码通过add()方法向 Set 结构加入成员，结果表明 Set 结构不会添加重复的值。`,
+        score: 3,
+      },
+      {
+        question: `如何利用Set去除数组或字符串重复元素？`,
+        answer: `上面代码也展示了一种去除数组重复成员的方法。
+
+// 去除数组的重复成员
+[...new Set(array)]
+上面的方法也可以用于，去除字符串里面的重复字符。
+
+[...new Set('ababbc')].join('')
+// "abc"`,
+        score: 2,
+      },
+      {
+        question: `Set加入多次NaN会怎样？`,
+        answer: `只会加一次，Set 内部判断两个值是否不同，使用的算法叫做“Same-value-zero equality”，它类似于精确相等运算符（===），主要的区别是向 Set 加入值时认为NaN等于自身，而精确相等运算符认为NaN不等于自身。`,
+        score: 2,
+      },
+      {
+        question: `Set有哪两个属性，哪四个方法？`,
+        answer: `Set 结构的实例有以下属性。
+
+Set.prototype.constructor：构造函数，默认就是Set函数。
+Set.prototype.size：返回Set实例的成员总数。
+
+Set 实例的方法分为两大类：操作方法（用于操作数据）和遍历方法（用于遍历成员）。下面先介绍四个操作方法。
+
+Set.prototype.add(value)：添加某个值，返回 Set 结构本身。
+Set.prototype.delete(value)：删除某个值，返回一个布尔值，表示删除是否成功。
+Set.prototype.has(value)：返回一个布尔值，表示该值是否为Set的成员。
+Set.prototype.clear()：清除所有成员，没有返回值。`,
+        score: 3,
+      },
+      {
+        question: `Set有哪些遍历方法？`,
+        answer: `Set 结构的实例有四个遍历方法，可以用于遍历成员。
+
+Set.prototype.keys()：返回键名的遍历器
+Set.prototype.values()：返回键值的遍历器
+Set.prototype.entries()：返回键值对的遍历器
+Set.prototype.forEach()：使用回调函数遍历每个成员
+
+let set = new Set(['red', 'green', 'blue']);
+
+for (let item of set.keys()) {
+  console.log(item);
+}
+// red
+// green
+// blue
+
+for (let item of set.values()) {
+  console.log(item);
+}
+// red
+// green
+// blue
+
+for (let item of set.entries()) {
+  console.log(item);
+}
+// ["red", "red"]
+// ["green", "green"]
+// ["blue", "blue"]
+
+上面代码中，entries方法返回的遍历器，同时包括键名和键值，所以每次输出一个数组，它的两个成员完全相等。`,
+        score: 3,
+      },
+      {
+        question: `let a = new Set([1, 2, 3]);
+let b = new Set([4, 3, 2]);
+请用代码展示交集、并集，a有b没有的差集`,
+        answer: `let a = new Set([1, 2, 3]);
+let b = new Set([4, 3, 2]);
+
+// 并集
+let union = new Set([...a, ...b]);
+// Set {1, 2, 3, 4}
+
+// 交集
+let intersect = new Set([...a].filter(x => b.has(x)));
+// set {2, 3}
+
+// （a 相对于 b 的）差集
+let difference = new Set([...a].filter(x => !b.has(x)));
+// Set {1}`,
+        score: 4,
+      },
+      {
+        question: `与Set相比，WeakSet有什么区别？`,
+        answer: `首先，WeakSet 的成员只能是对象和 Symbol 值，而不能是其他类型的值。
+其次，WeakSet 中的对象都是弱引用，即垃圾回收机制不考虑 WeakSet 对该对象的引用，如果是强引用，则会一直占用内存，除非手动清理。也就是说，如果其他对象都不再引用弱引用对象，那么垃圾回收机制会自动回收该对象所占用的内存，不考虑该对象还存在于 WeakSet 之中。
+这是因为垃圾回收机制根据对象的可达性（reachability）来判断回收，如果对象还能被访问到，垃圾回收机制就不会释放这块内存。结束使用该值之后，有时会忘记取消引用，导致内存无法释放，进而可能会引发内存泄漏。WeakSet 里面的引用，都不计入垃圾回收机制，所以就不存在这个问题。因此，WeakSet 适合【临时】存放一组对象，以及存放跟对象绑定的信息。只要这些对象在外部消失，它在 WeakSet 里面的引用就会自动消失。
+因此 WeakSet 主要用于储存 DOM 节点，而不用担心这些节点从文档移除时，会引发内存泄漏。`,
+        score: 4,
+      },
+      {
+        question: `为什么 ES6 规定 WeakSet 不可遍历？`,
+        answer: `WeakSet 的成员是不适合引用的，因为它会随时消失。另外，由于 WeakSet 内部有多少个成员，取决于垃圾回收机制有没有运行，运行前后很可能成员个数是不一样的，而垃圾回收机制何时运行是不可预测的，因此 ES6 规定 WeakSet 不可遍历。`,
+        score: 2,
+      },
+      {
+        question: `WeakSet 有哪些方法？`,
+        answer: `WeakSet 结构有以下三个方法。
+
+WeakSet.prototype.add(value)：向 WeakSet 实例添加一个新成员，返回 WeakSet 结构本身。
+WeakSet.prototype.delete(value)：清除 WeakSet 实例的指定成员，清除成功返回true，如果在 WeakSet 中找不到该成员或该成员不是对象，返回false。
+WeakSet.prototype.has(value)：返回一个布尔值，表示某个值是否在 WeakSet 实例之中。
+
+因为WeakSet不可遍历，所以其他属性和方法它都没有`,
+        score: 2,
+      },
+      {
+        question: `与传统对象相比，Map有什么特点？`,
+        answer: `JavaScript 的对象（Object），本质上是键值对的集合（Hash 结构），但是传统上只能用字符串当作键。为了解决这个问题，ES6 提供了 Map 数据结构。它类似于对象，也是键值对的集合，但是“键”的范围不限于字符串，各种类型的值（包括对象）都可以当作键。也就是说，Object 结构提供了“字符串—值”的对应，Map 结构提供了“值—值”的对应，是一种更完善的 Hash 结构实现。如果你需要“键值对”的数据结构，Map 比 Object 更合适。
+
+const m = new Map();
+const o = {p: 'Hello World'};
+
+m.set(o, 'content')
+m.get(o) // "content"
+
+m.has(o) // true
+m.delete(o) // true
+m.has(o) // false`,
+        score: 2,
+      },
+      {
+        question: `Map有什么属性和方法？`,
+        answer: `size属性，返回Map成员个数
+        
+方法：set、get、has、delete、clear
+
+const m = new Map();
+const o = {p: 'Hello World'};
+
+m.set(o, 'content')
+m.get(o) // "content"
+
+m.has(o) // true
+m.delete(o) // true
+m.has(o) // false
+
+Map.prototype.clear()
+
+clear()方法清除所有成员，没有返回值。`,
+        score: 3,
+      },
+      {
+        question: `Map遍历方法？`,
+        answer: `Map 结构原生提供三个遍历器生成函数和一个遍历方法。
+
+Map.prototype.keys()：返回键名的遍历器。
+Map.prototype.values()：返回键值的遍历器。
+Map.prototype.entries()：返回所有成员的遍历器。
+Map.prototype.forEach()：遍历 Map 的所有成员。
+
+需要特别注意的是，Map 的遍历顺序就是插入顺序。
+
+const map = new Map([
+  ['F', 'no'],
+  ['T',  'yes'],
+]);
+
+for (let key of map.keys()) {
+  console.log(key);
+}
+// "F"
+// "T"
+
+for (let value of map.values()) {
+  console.log(value);
+}
+// "no"
+// "yes"
+
+for (let item of map.entries()) {
+  console.log(item[0], item[1]);
+}
+// "F" "no"
+// "T" "yes"
+
+// 或者
+for (let [key, value] of map.entries()) {
+  console.log(key, value);
+}
+// "F" "no"
+// "T" "yes"
+
+// 等同于使用map.entries()
+for (let [key, value] of map) {
+  console.log(key, value);
+}
+// "F" "no"
+// "T" "yes"`,
+        score: 3,
+      },
+      {
+        question: `Map转为JSON分什么情况？`,
+        answer: `Map 转为 JSON 要区分两种情况。一种情况是，Map 的键名都是字符串，这时可以选择转为对象 JSON。
+
+function strMapToJson(strMap) {
+  return JSON.stringify(strMapToObj(strMap));
+}
+
+let myMap = new Map().set('yes', true).set('no', false);
+strMapToJson(myMap)
+// '{"yes":true,"no":false}'
+
+另一种情况是，Map 的键名有非字符串，这时可以选择转为数组 JSON。
+
+function mapToArrayJson(map) {
+  return JSON.stringify([...map]);
+}
+
+let myMap = new Map().set(true, 7).set({foo: 3}, ['abc']);
+mapToArrayJson(myMap)
+// '[[true,7],[{"foo":3},["abc"]]]'`,
+        score: 3,
+      },
+      {
+        question: `Map与WeakMap区别？`,
+        answer: `Map 转为 JSON 要区分两种情况。一种情况是，Map 的键名都是字符串，这时可以选择转为对象 JSON。
+
+function strMapToJson(strMap) {
+  return JSON.stringify(strMapToObj(strMap));
+}
+
+let myMap = new Map().set('yes', true).set('no', false);
+strMapToJson(myMap)
+// '{"yes":true,"no":false}'
+
+另一种情况是，Map 的键名有非字符串，这时可以选择转为数组 JSON。
+
+function mapToArrayJson(map) {
+  return JSON.stringify([...map]);
+}
+
+let myMap = new Map().set(true, 7).set({foo: 3}, ['abc']);
+mapToArrayJson(myMap)
+// '[[true,7],[{"foo":3},["abc"]]]'`,
+        score: 3,
+      },
+      {
+        question: `WeakMap作用？`,
+        answer: `WeakMap 应用的典型场合就是 DOM 节点作为键名。下面是一个例子。
+
+let myWeakmap = new WeakMap();
+
+myWeakmap.set(
+  document.getElementById('logo'),
+  {timesClicked: 0})
+;
+
+document.getElementById('logo').addEventListener('click', function() {
+  let logoData = myWeakmap.get(document.getElementById('logo'));
+  logoData.timesClicked++;
+}, false);
+
+上面代码中，document.getElementById('logo')是一个 DOM 节点，每当发生click事件，就更新一下状态。我们将这个状态作为键值放在 WeakMap 里，对应的键名就是这个节点对象。一旦这个 DOM 节点删除，该状态就会自动消失，不存在内存泄漏风险。
+
+WeakMap 的另一个用处是部署私有属性。
+
+const _counter = new WeakMap();
+const _action = new WeakMap();
+
+class Countdown {
+  constructor(counter, action) {
+    _counter.set(this, counter);
+    _action.set(this, action);
+  }
+  dec() {
+    let counter = _counter.get(this);
+    if (counter < 1) return;
+    counter--;
+    _counter.set(this, counter);
+    if (counter === 0) {
+      _action.get(this)();
+    }
+  }
+}
+
+const c = new Countdown(2, () => console.log('DONE'));
+
+c.dec()
+c.dec()
+// DONE
+
+上面代码中，Countdown类的两个内部属性_counter和_action，是实例的弱引用，所以如果删除实例，它们也就随之消失，不会造成内存泄漏。`,
+        score: 3,
+      },
+    ]
+  }
 ];
 
 let ts = [
   {
-    name: "基础",
+    name: "ts基础",
     test: "ts+Vue3",
     visible: false,
     subject: [
