@@ -156,7 +156,14 @@ id 选择器（用 DOM 的 ID 申明）
         undefined：表示“未定义”或不存在，即由于目前没有定义，所以此处暂时没有任何值。
         null：表示空值，即此处的值为空。
         对象（object）：各种值组成的集合。
-        通常，数值、字符串、布尔值这三种类型，合称为原始类型（primitive type）的值，即它们是最基本的数据类型，不能再细分了。对象则称为合成类型（complex type）的值，因为一个对象往往是多个原始类型的值的合成，可以看作是一个存放各种值的容器。至于undefined和null，一般将它们看成两个特殊值。`,
+        通常，数值、字符串、布尔值这三种类型，合称为原始类型（primitive type）的值，即它们是最基本的数据类型，不能再细分了。对象则称为合成类型（complex type）的值，因为一个对象往往是多个原始类型的值的合成，可以看作是一个存放各种值的容器。至于undefined和null，一般将它们看成两个特殊值。
+        原始数据类型 - 栈类型
+        引用数据类型 - 堆类型
+
+        原始数据类型直接存储在栈（stack）中的简单数据段，占据空间小、大小固定，属于被频繁使用数据，所以放入栈中存储；
+        引用数据类型存储在堆（heap）中的对象，占据空间大、大小不固定。如果存储在栈中，将会影响程序运行的性能；引用数据类型在栈中存储了指针，该指针指向堆中该实体的起始地址。当解释器寻找引用值时，会首先检索其在栈中的地址，取得地址后从堆中获得实体。
+        
+        ES6 引入了一种新的原始数据类型Symbol，表示独一无二的值。它属于 JavaScript 语言的原生数据类型之一，其他数据类型是：undefined、null、布尔值（Boolean）、字符串（String）、数值（Number）、大整数（BigInt）、对象（Object）。`,
         score: 2,
       },
       {
@@ -173,7 +180,11 @@ id 选择器（用 DOM 的 ID 申明）
       },
       {
         question: `typeof 一个空对象、空数组、空函数、window对象，null，undefined 分别返回什么？`,
-        answer: `空对象 object；空数组 object；空函数 function；window对象 object；null object; undefined undefined`,
+        answer: `空对象 object；空数组 object；空函数 function；window对象 object；null object; undefined undefined
+        
+        typeof null 返回object是一个历史遗留问题，在 js 最初设计时，null 被当作一个空对象指针。为了与其他对象类型区分开， typeof null 返回了 "object"
+        实际上， null 是一个表示空值的特殊值，它不是对象，也不是任何对象的实例。虽然 typeof null 返回了 "object" ，但这并不表示 null 是对象的一种类型。
+        由于这个历史遗留问题，判断一个值是否为 null 通常需要使用 value === null 进行比较，而不是依赖 typeof 运算符的结果。 `,
         score: 2,
       },
       {
@@ -369,6 +380,11 @@ isFinite(-1) // true`,
 \\u后面紧跟四个十六进制数（0000到FFFF），代表一个字符。XXXX对应该字符的 Unicode 码点，比如\\u00A9表示版权符号。`,
         score: 1,
       },
+      {
+        question: `如果想要对数字进行字符串转换，可以使用字符串的哪种方法？`,
+        answer: `toString，比方说转16进制，就可以使用 data.toString(16)`,
+        score: 1,
+      },
     ],
   },
   {
@@ -376,6 +392,12 @@ isFinite(-1) // true`,
     test: "js基础",
     visible: false,
     subject: [
+      {
+        question: `什么是 DOM 和 BOM？`,
+        answer: `DOM 指的是文档对象模型，它指的是把文档当做一个对象，这个对象主要定义了处理网页内容的方法和接口。
+BOM 指的是浏览器对象模型，它指的是把浏览器当做一个对象来对待，这个对象主要定义了与浏览器进行交互的法和接口。BOM的核心是 window，而 window 对象具有双重角色，它既是通过 js 访问浏览器窗口的一个接口，又是一个 Global（全局）对象。这意味着在网页中定义的任何对象，变量和函数，都作为全局对象的一个属性或者方法存在。window 对象含有 location 对象、navigator 对象、screen 对象等子对象，并且 DOM 的最根本的对象 document 对象也是 BOM 的 window 对象的子对象。`,
+        score: 1,
+      },
       {
         question: `
         var o1 = {};
@@ -619,8 +641,24 @@ a.forEach(function (x, i) {
         score: 2,
       },
       {
+        question: `对类数组对象的理解，如何转化为数组？`,
+        answer: `常见的类数组转换为数组的方法有这样几种：
+
+通过 call 调用数组的 slice 方法来实现转换
+Array.prototype.slice.call(arrayLike);
+通过 call 调用数组的 splice 方法来实现转换
+Array.prototype.splice.call(arrayLike, 0);
+通过 apply 调用数组的 concat 方法来实现转换
+Array.prototype.concat.apply([], arrayLike);
+通过 Array.from 方法来实现转换
+Array.from(arrayLike);`,
+        score: 2,
+      },
+      {
         question: `什么是闭包？`,
         answer: `闭包即能够读取其他函数内部变量的函数。由于在 JavaScript 语言中，只有函数内部的子函数才能读取内部变量，因此可以把闭包简单理解成“定义在一个函数内部的函数，也可以看作是函数内部作用域的一个接口。”。
+
+        更直白地说，闭包不一定有 return，但闭包的内层一定有一个可以读取函数内部的函数。之所以我们看到的闭包大多数都有 return，是因为外部函数如果想使用闭包变量的话，就一定要用到闭包的 return。
         
         function f1() {
           var n = 999;
@@ -634,10 +672,11 @@ a.forEach(function (x, i) {
         result(); // 999
         这里的闭包就是f2`,
         score: 4,
+        img: "闭包.png"
       },
       {
         question: `闭包的作用？`,
-        answer: `闭包的最大用处有两个，一个是可以读取外层函数内部的变量，另一个就是让这些变量始终保持在内存中，即闭包可以使得它诞生环境一直存在。除此之外，闭包还可以封装对象私有属性和私有方法。请看下面的例子，闭包使得内部变量记住上一次调用时的运算结果。
+        answer: `闭包的最大用处有两个，一个是可以读取外层函数内部的变量，另一个就是让这些变量始终保持在内存中，即闭包可以使得它诞生环境一直存在。除此之外，闭包还可以封装对象私有属性和私有方法，外界无法直接获取。请看下面的例子，闭包使得内部变量记住上一次调用时的运算结果。
         
         function createIncrementor(start) {
           return function () {
@@ -726,7 +765,7 @@ window.eval('...')
     subject: [
       {
         question: `指数运算符怎么表示？`,
-        answer: `x ** y`,
+        answer: `x ** y，x 的 y 次方`,
         score: 1,
       },
       {
@@ -774,7 +813,7 @@ isOdd(-4) // false`,
         score: 1,
       },
       {
-        question: `如果对象转换为原始类型，是怎么转换的？`,
+        question: `如果对象转换为原始类型（字符串），是怎么转换的？`,
         answer: `先调用 valueOf 方法（返回自身值），然后再调用 toString 方法（转成字符串）`,
         score: 1,
       },
@@ -857,9 +896,10 @@ isOdd(-4) // false`,
         和同类型比，也就是字符串，所以这俩相等
 
         undefined == null // true
+        // null被转换为一个数值时，其值为0。‌undefined转换为一个数值时，其值为NaN。由于undefined和null在布尔上下文中都被视为false，因此它们在比较时会被转化为相同的布尔值，导致undefined == null的结果为true。这是因为JavaScript在比较这两个值时，会先将它们转换为布尔值，然后再进行比较。‌
         
-        0 == null // false
-        0 == undefined // false`,
+        0 == null // false，null 做相等判断时，不进行转型，0>=null 返回 true
+        0 == undefined // false, undefined 做相等判断时，不进行转型`,
         score: 5,
       },
       {
@@ -997,12 +1037,14 @@ x // 1 （前面是0，后面的语句不执行了）
       },
       {
         question: `什么是反码和补码？`,
-        answer: `在JavaScript中，负数是通过补码形式表示的。
-        对负数的二进制形式进行取反（0变为1，1变为0），得到反码。
-        反码加一，符号位取反，得到补码。
-        例如，我们要查看-4在JavaScript内部是如何表示的：
+        answer: `正数的反码与原码相同，如：10 反码为 0000 1010
+负数的反码为除符号位，按位取反，即0变1，1变0。
+在JavaScript中，负数是通过补码形式表示的。
+对负数的二进制形式进行取反（0变为1，1变为0），得到反码。
+反码加一，符号位取反，得到补码。
+例如，我们要查看-4在JavaScript内部是如何表示的：
 
--4的二进制形式是1...100（实际32位），反码得到0...011。再加一，符号位取反，得到1...100，这就是-4在JavaScript中的补码表示。
+-4的二进制形式是1...100（实际32位），反码得到0...011。再加一，取反，得到1...100，这就是-4在JavaScript中的补码表示。
 `,
         score: 2,
       },
@@ -1910,7 +1952,7 @@ cat2.color // 'white'
 
 ----------------------
 
-cat1.color = 'black';
+cat1.color = 'black'; // 只把cat1的属性改了，其他对象的属性不会变
 
 cat1.color // 'black'
 cat2.color // 'yellow'
@@ -2064,7 +2106,7 @@ ClassB.prototype.print = function() {
     subject: [
       {
         question: `getPrototypeOf方法有什么用？`,
-        answer: `Object.getPrototypeOf方法返回参数对象的原型。这是获取原型对象的标准方法。
+        answer: `Object.getPrototypeOf方法返回参数对象的原型。这是获取原型对象的标准方法（只局限于父子对象）。
 这个方法直接返回是看不出来的，必须用比较的方式获取
 
 var F = function () {};
@@ -2198,7 +2240,7 @@ b instanceof A // true
       },
       {
         question: `判断原型对象，可以用实例对象的什么方法？`,
-        answer: `实例对象的isPrototypeOf方法，用来判断该对象是否为参数对象的原型。
+        answer: `实例对象的isPrototypeOf方法，用来判断该对象是否为参数对象的原型（可以隔代）。
 
 var o1 = {};
 var o2 = Object.create(o1);
@@ -2521,7 +2563,7 @@ Object.freeze方法（冻结）可以使得一个对象无法添加新属性、�
       },
       {
         question: `使用冻结对象有什么局限性？`,
-        answer: `如果属性值是对象，上面这些方法只能冻结属性指向的对象，而不能冻结对象本身的内容。
+        answer: `如果属性值是对象，上面这些方法只能冻结属性指向的对象，而不能冻结对象本身的内容（浅冻结）。
 
 var obj = {
   foo: 1,
@@ -2531,7 +2573,22 @@ Object.freeze(obj);
 
 obj.bar.push('c');
 obj.bar // ["a", "b", "c"]
-上面代码中，obj.bar属性指向一个数组，obj对象被冻结以后，这个指向无法改变，即无法指向其他值，但是所指向的数组是可以改变的。`,
+上面代码中，obj.bar属性指向一个数组，obj对象被冻结以后，这个指向无法改变，即无法指向其他值，但是所指向的数组是可以改变的。
+
+
+除此之外，它可以改变该对象原型的属性或方法。
+let obj1 = {
+  name: "123",
+};
+let obj2 = {
+  age: 18,
+};
+Object.setPrototypeOf(obj2, obj1);
+// obj2 = Object.create(obj1);
+Object.freeze(obj2);
+obj1.name = "sss";
+obj2.age = 22;
+console.log(obj2.name); // 'sss'`,
         score: 2,
       },
     ],
@@ -3575,8 +3632,10 @@ JSON.stringify(/foo/) // ""/foo/""
         answer: `JSON.parse()和JSON.stringify()可以结合使用，像下面这样写，实现对象的深拷贝。
 
 JSON.parse(JSON.stringify(obj))
-上面这种写法，可以深度克隆一个对象，但是对象内部不能有 JSON
-不允许的数据类型，比如函数、正则对象、日期对象等。`,
+上面这种写法，可以深度克隆一个对象。
+
+这种方法的基本原理是将JavaScript对象转换为JSON字符串，然后再将该字符串解析回对象。这个过程可以避免引用问题，从而实现深拷贝。具体来说，通过JSON.stringify()将对象转换为JSON字符串，然后使用JSON.parse()将该字符串解析回对象，从而得到一个新的独立对象。这种方法对于大多数情况是有效的，因为它能够处理大多数数据类型，包括数组和对象。然而，这种方法也有其局限性，例如无法处理函数、undefined值以及循环引用的情况。此外，如果原对象包含特殊的数据类型或结构，如日期对象或正则表达式，这些数据在转换过程中可能会丢失‌。
+尽管存在这些限制，JSON.parse(JSON.stringify(obj))仍然是一种简单且在某些情况下可行的深拷贝方法。对于需要快速实现深拷贝且对象结构相对简单的场景，这种方法是一个不错的选择。然而，对于更复杂的数据结构或需要处理特殊数据类型的场景，可能需要考虑使用其他深拷贝方法或库来实现更健壮的深拷贝功能‌。`,
         score: 6,
       },
     ],
@@ -5240,7 +5299,10 @@ document.domain = 'example.com';
 
 JSONP
 WebSocket
-CORS`,
+CORS
+
+
+WebSocket支持跨域通信。在WebSocket协议中，浏览器会发送一个HTTP请求头字段Origin，服务器可以通过检查这个字段来确认是否允许该跨域请求。如果服务器认为该请求是合法的，就会返回一个HTTP响应头字段Access-Control-Allow-Origin来允许跨域通信。因此，WebSocket是支持跨域通信的。`,
         score: 3,
       },
       {
@@ -5250,7 +5312,7 @@ CORS`,
 
 它的做法如下。
 
-第一步，网页添加一个<script>元素，向服务器请求一个脚本，这不受同源政策限制，可以跨域请求。
+第一步，网页添加一个<script>元素，向服务器请求一个脚本，这不受同源政策限制，可以跨域请求（其他的标签，如style,img这些，服务器限制也比较少）。
 <script src="http://api.foo.com?callback=bar"></script>
 注意，请求的脚本网址有一个callback参数（?callback=bar），用来告诉服务器，客户端的回调函数名称（bar）。
 第二步，服务器收到请求后，拼接一个字符串，将 JSON 数据放在函数名里面，作为字符串返回（bar({...})）。
@@ -5322,6 +5384,7 @@ CORS 需要浏览器和服务器同时支持。目前，所有浏览器都支持
 HEAD
 GET
 POST
+
 （2）HTTP 的头信息不超出以下几种字段。
 
 Accept
@@ -5329,6 +5392,7 @@ Accept-Language
 Content-Language
 Last-Event-ID
 Content-Type：只限于三个值application/x-www-form-urlencoded、multipart/form-data、text/plain
+
 凡是不同时满足上面两个条件，就属于非简单请求（预检请求，服务器还需要做进一步确认）。一句话，简单请求就是简单的 HTTP 方法与简单的 HTTP 头信息的结合。
 
 这样划分的原因是，表单在历史上一直可以跨源发出请求。简单请求就是表单请求，浏览器沿袭了传统的处理方式，不把行为复杂化，否则开发者可能转而使用表单，规避 CORS 的限制。对于非简单请求，浏览器会采用新的处理方式。`,
@@ -5411,6 +5475,76 @@ history.go(-2);
 history.go(0)相当于刷新当前页面。
 
 注意，移动到以前访问过的页面时，页面通常是从浏览器缓存之中加载，而不是重新要求服务器发送新的网页。`,
+        score: 3,
+      },
+      {
+        question: `History.pushState() 有什么用？`,
+        answer: `History.pushState()方法用于在历史中添加一条记录。
+
+window.history.pushState(state, title, url)
+该方法接受三个参数，依次为：
+
+state：一个与添加的记录相关联的状态对象，主要用于popstate事件。该事件触发时，该对象会传入回调函数。也就是说，浏览器会将这个对象序列化以后保留在本地，重新载入这个页面的时候，可以拿到这个对象。如果不需要这个对象，此处可以填null。
+title：新页面的标题。但是，现在所有浏览器都忽视这个参数，所以这里可以填空字符串。
+url：新的网址，必须与当前页面处在同一个域。浏览器的地址栏将显示这个网址。
+假定当前网址是example.com/1.html，使用pushState()方法在浏览记录（History 对象）中添加一个新记录。
+
+var stateObj = { foo: 'bar' };
+history.pushState(stateObj, 'page 2', '2.html');
+添加新记录后，浏览器地址栏立刻显示example.com/2.html，但并不会跳转到2.html，甚至也不会检查2.html是否存在，它只是成为浏览历史中的最新记录。这时，在地址栏输入一个新的地址(比如访问google.com)，然后点击了倒退按钮，页面的 URL 将显示2.html；你再点击一次倒退按钮，URL 将显示1.html。
+
+总之，pushState()方法不会触发页面刷新，只是导致 History 对象发生变化，地址栏会有反应。`,
+        score: 3,
+      },
+      {
+        question: `History.replaceState() 有什么用？`,
+        answer: `History.replaceState()方法用来修改 History 对象的当前记录，其他都与pushState()方法一模一样。
+
+假定当前网页是example.com/example.html。
+
+history.pushState({page: 1}, 'title 1', '?page=1')
+// URL 显示为 http://example.com/example.html?page=1
+
+history.pushState({page: 2}, 'title 2', '?page=2');
+// URL 显示为 http://example.com/example.html?page=2
+
+history.replaceState({page: 3}, 'title 3', '?page=3');
+// URL 显示为 http://example.com/example.html?page=3
+
+history.back()
+// URL 显示为 http://example.com/example.html?page=1
+
+history.back()
+// URL 显示为 http://example.com/example.html
+
+history.go(2)
+// URL 显示为 http://example.com/example.html?page=3`,
+        score: 1,
+      },
+      {
+        question: `popstate 事件 有什么用？`,
+        answer: `每当同一个文档的浏览历史（即history对象）出现变化时，就会触发popstate事件。
+
+注意，仅仅调用pushState()方法或replaceState()方法 ，并不会触发该事件，只有用户点击浏览器倒退按钮和前进按钮，或者使用 JavaScript 调用History.back()、History.forward()、History.go()方法时才会触发。另外，该事件只针对同一个文档，如果浏览历史的切换，导致加载不同的文档，该事件也不会触发。
+
+使用的时候，可以为popstate事件指定回调函数。
+
+window.onpopstate = function (event) {
+  console.log('location: ' + document.location);
+  console.log('state: ' + JSON.stringify(event.state));
+};
+
+// 或者
+window.addEventListener('popstate', function(event) {
+  console.log('location: ' + document.location);
+  console.log('state: ' + JSON.stringify(event.state));
+});
+回调函数的参数是一个event事件对象，它的state属性指向pushState和replaceState方法为当前 URL 所提供的状态对象（即这两个方法的第一个参数）。上面代码中的event.state，就是通过pushState和replaceState方法，为当前 URL 绑定的state对象。
+
+这个state对象也可以直接通过history对象读取。
+
+var currentState = history.state;
+注意，页面第一次加载的时候，浏览器不会触发popstate事件。`,
         score: 3,
       },
       {
@@ -5522,6 +5656,12 @@ a[6](); `,
         score: 1,
       },
       {
+        question: `什么叫变量提升？`,
+        answer: `变量提升会将变量声明提升到它所在作用域的最开始的部分。函数提升优先级大于变量提升。
+var存在变量提升，let和const不存在变量提升，即在变量只能在声明之后使用，否在会报错。`,
+        score: 3,
+      },
+      {
         question: `什么叫暂时性死区？`,
         answer: `在代码块内，使用let命令声明变量之前，该变量都是不可用的。这在语法上，称为“暂时性死区”（temporal dead zone，简称 TDZ）。
 
@@ -5550,6 +5690,7 @@ let x;
 typeof undeclared_variable // "undefined"
 上面代码中，undeclared_variable是一个不存在的变量名，结果返回“undefined”。所以，在没有let之前，typeof运算符是百分之百安全的，永远不会报错。现在这一点不成立了。这样的设计是为了让大家养成良好的编程习惯，变量一定要在声明之后使用，否则就报错。`,
         score: 2,
+        img: "letconst.png",
       },
       {
         question: `块级作用域和立即执行函数有什么区别？`,
@@ -5739,6 +5880,35 @@ move(); // [0, 0]`,
         score: 1,
       },
       {
+        question: `const school = {
+  classes: {
+      stu: {
+        name: 'Bob',
+        age: 24,
+      }
+  }
+}
+请用更加简洁清晰的方式给变量name赋值`,
+        answer: `像此处的 name 这个变量，嵌套了四层，此时如果仍然尝试老方法来提取它：
+
+const { name } = school
+
+显然是不奏效的，因为 school 这个对象本身是没有 name 这个属性的，name 位于 school 对象的“儿子的儿子”对象里面。要想把 name 提取出来，一种比较笨的方法是逐层解构：
+
+const { classes } = school
+const { stu } = classes
+const { name } = stu
+name // 'Bob'
+
+但是还有一种更标准的做法，可以用一行代码来解决这个问题：
+
+const { classes: { stu: { name } }} = school     
+console.log(name)  // 'Bob'
+
+可以在解构出来的变量名右侧，通过冒号+{目标属性名}这种形式，进一步解构它，一直解构到拿到目标数据为止。`,
+        score: 2,
+      },
+      {
         question: `变量的解构赋值用途有哪些？`,
         answer: `（1）交换变量的值
 
@@ -5858,6 +6028,14 @@ const { SourceMapConsumer, SourceNode } = require("source-map");`,
         score: 2,
       },
       {
+        question: `Unicode、UTF-8、UTF-16、UTF-32有什么区别？`,
+        answer: `​Unicode ​是编码字符集（字符集）,ASCII码 只需一个字节，非ASCII码 需2~4个字节，而 ​UTF-8​、​UTF-16​、​UTF-32​是字符集编码（编码规则），所有 Unicode字符 都是2个字节；
+​UTF-16​ 使用变长码元序列的编码方式，相较于定长码元序列的 ​UTF-32​算法更复杂，甚至比同样是变长码元序列的 ​UTF-8​也更为复杂，因为其引入了独特的代理对这样的代理机制；
+​UTF-8​需要判断每个字节中的开头标志信息，所以如果某个字节在传送过程中出错了，就会导致后面的字节也会解析出错；而 ​UTF-16​不会判断开头标志，即使错也只会错一个字符，所以容错能力教强；
+如果字符内容全部英文或英文与其他文字混合，但英文占绝大部分，那么用 ​UTF-8​就比 ​UTF-16​节省了很多空间；而如果字符内容全部是中文这样类似的字符或者混合字符中中文占绝大多数，那么 ​UTF-16​就占优势了，可以节省很多空间；`,
+        score: 2,
+      },
+      {
         question: `如果拷贝的一段模板字符串中有前后换行，可以怎么去除？`,
         answer: `所有模板字符串的空格和换行，都是被保留的，比如<ul>标签前面会有一个换行。如果你不想要这个换行，可以使用trim方法消除它。
 
@@ -5910,7 +6088,7 @@ i18n\`Welcome to \${siteName}, you are visitor number \${visitorNumber}!\`
         question: `String.raw()有什么用？`,
         answer: `ES6 还为原生的 String 对象，提供了一个raw()方法。该方法返回一个斜杠都被转义（即斜杠前面再加一个斜杠）的字符串，往往用于模板字符串的处理方法。
 
-String.raw\`Hi\\n${2+3}!\`
+String.raw\`Hi\\n${2 + 3}!\`
 // 实际返回 "Hi\\\\n5!"，显示的是转义后的结果 "Hi\\n5!"
 
 String.raw\`Hi\\u000A!\`;
@@ -7221,7 +7399,7 @@ let s1 = Symbol.for("foo");
 Symbol.keyFor(s1) // "foo"`,
         score: 2,
       },
-    ]
+    ],
   },
   {
     name: "Set和Map",
@@ -7361,6 +7539,8 @@ WeakSet.prototype.has(value)：返回一个布尔值，表示某个值是否在 
         question: `与传统对象相比，Map有什么特点？`,
         answer: `JavaScript 的对象（Object），本质上是键值对的集合（Hash 结构），但是传统上只能用字符串当作键。为了解决这个问题，ES6 提供了 Map 数据结构。它类似于对象，也是键值对的集合，但是“键”的范围不限于字符串，各种类型的值（包括对象）都可以当作键。也就是说，Object 结构提供了“字符串—值”的对应，Map 结构提供了“值—值”的对应，是一种更完善的 Hash 结构实现。如果你需要“键值对”的数据结构，Map 比 Object 更合适。
 
+hash算法：其实就是和数组里的索引差不多，hash 算法会按照先来后到的顺序给每个键值对进行排序
+
 const m = new Map();
 const o = {p: 'Hello World'};
 
@@ -7371,6 +7551,7 @@ m.has(o) // true
 m.delete(o) // true
 m.has(o) // false`,
         score: 2,
+        img: "map.png"
       },
       {
         question: `Map有什么属性和方法？`,
@@ -7467,25 +7648,8 @@ mapToArrayJson(myMap)
       },
       {
         question: `Map与WeakMap区别？`,
-        answer: `Map 转为 JSON 要区分两种情况。一种情况是，Map 的键名都是字符串，这时可以选择转为对象 JSON。
-
-function strMapToJson(strMap) {
-  return JSON.stringify(strMapToObj(strMap));
-}
-
-let myMap = new Map().set('yes', true).set('no', false);
-strMapToJson(myMap)
-// '{"yes":true,"no":false}'
-
-另一种情况是，Map 的键名有非字符串，这时可以选择转为数组 JSON。
-
-function mapToArrayJson(map) {
-  return JSON.stringify([...map]);
-}
-
-let myMap = new Map().set(true, 7).set({foo: 3}, ['abc']);
-mapToArrayJson(myMap)
-// '[[true,7],[{"foo":3},["abc"]]]'`,
+        answer: `Map 数据结构。它类似于对象，也是键值对的集合，但是“键”的范围不限于字符串，各种类型的值（包括对象）都可以当作键。
+WeakMap 结构与 Map 结构类似，也是用于生成键值对的集合。但是 WeakMap 只接受对象作为键名（ null 除外），不接受其他类型的值作为键名。而且 WeakMap 的键名所指向的对象，不计入垃圾回收机制。`,
         score: 3,
       },
       {
@@ -7536,6 +7700,451 @@ c.dec()
 上面代码中，Countdown类的两个内部属性_counter和_action，是实例的弱引用，所以如果删除实例，它们也就随之消失，不会造成内存泄漏。`,
         score: 3,
       },
+    ],
+  },
+  {
+    name: "Proxy",
+    test: "js ES6基础",
+    visible: false,
+    subject: [
+      {
+        question: `Proxy 是什么？`,
+        answer: `Proxy 用于修改某些操作的默认行为，等同于在语言层面做出修改，所以属于一种“元编程”（meta programming），即对编程语言进行编程。
+
+Proxy 可以理解成，在目标对象之前架设一层“拦截”，外界对该对象的访问，都必须先通过这层拦截，因此提供了一种机制，可以对外界的访问进行过滤和改写。Proxy 这个词的原意是代理，用在这里表示由它来“代理”某些操作，可以译为“代理器”。
+
+var obj = new Proxy({}, {
+  get: function (target, propKey, receiver) {
+    console.log(\`getting \${propKey}!\`);
+    return Reflect.get(target, propKey, receiver);
+  },
+  set: function (target, propKey, value, receiver) {
+    console.log(\`setting \${propKey}!\`);
+    return Reflect.set(target, propKey, value, receiver);
+  }
+});
+
+上面代码对一个空对象架设了一层拦截，重定义了属性的读取（get）和设置（set）行为。这里暂时先不解释具体的语法，只看运行结果。对设置了拦截行为的对象obj，去读写它的属性，就会得到下面的结果。
+
+obj.count = 1
+//  setting count!
+++obj.count
+//  getting count!
+//  setting count!
+//  2
+上面代码说明，Proxy 实际上重载（overload）了点运算符，即用自己的定义覆盖了语言的原始定义。
+
+ES6 原生提供 Proxy 构造函数，用来生成 Proxy 实例。
+
+var proxy = new Proxy(target, handler);
+Proxy 对象的所有用法，都是上面这种形式，不同的只是handler参数的写法。其中，new Proxy()表示生成一个Proxy实例，target参数表示所要拦截的目标对象，handler参数也是一个对象，用来定制拦截行为。`,
+        score: 3,
+        img: "proxy对比.png",
+      },
+      {
+        question: `Proxy 支持哪些方法？`,
+        answer: `下面是 Proxy 支持的拦截操作一览，一共 13 种。
+
+get(target, propKey, receiver)：拦截对象属性的读取，比如proxy.foo和proxy['foo']。receiver可选。
+set(target, propKey, value, receiver)：拦截对象属性的设置，比如proxy.foo = v或proxy['foo'] = v，返回一个布尔值。receiver可选。
+has(target, propKey)：拦截propKey in proxy的操作，返回一个布尔值。如果目标对象的参数存在，拦截此方法。
+deleteProperty(target, propKey)：拦截delete proxy[propKey]的操作，返回一个布尔值。如果目标对象的参数被删，拦截此方法。返回false的话，目标参数不能删除。
+ownKeys(target)：拦截Object.getOwnPropertyNames(proxy)、Object.getOwnPropertySymbols(proxy)、Object.keys/values/entries(proxy)、for...in循环，返回一个数组。该方法返回目标对象所有自身的属性的属性名，而Object.keys()的返回结果仅包括目标对象自身的可遍历属性。
+getOwnPropertyDescriptor(target, propKey)：拦截Object.getOwnPropertyDescriptor(proxy, propKey)，返回属性的描述对象。
+defineProperty(target, propKey, propDesc)：拦截Object.defineProperty(proxy, propKey, propDesc）、Object.defineProperties(proxy, propDescs)，返回一个布尔值。
+preventExtensions(target)：拦截Object.preventExtensions(proxy)，返回一个布尔值。
+getPrototypeOf(target)：拦截Object.getPrototypeOf(proxy)，返回一个对象。
+isExtensible(target)：拦截Object.isExtensible(proxy)，返回一个布尔值。
+setPrototypeOf(target, proto)：拦截Object.setPrototypeOf(proxy, proto)，返回一个布尔值。如果目标对象是函数，那么还有两种额外操作可以拦截。
+apply(target, object, args)：拦截 Proxy 实例作为函数调用的操作，比如proxy(...args)、proxy.call(object, ...args)、proxy.apply(...)。
+construct(target, args)：拦截 Proxy 实例作为构造函数调用的操作，比如new proxy(...args)。`,
+        score: 4,
+      },
+      {
+        question: `proxy为什么在某些情况下，无法做到与目标对象保持一致？`,
+        answer: `虽然 Proxy 可以代理针对目标对象的访问，但它不是目标对象的透明代理，即不做任何拦截的情况下，也无法保证与目标对象的行为一致。主要原因就是在 Proxy 代理的情况下，目标对象内部的this关键字会指向 Proxy 代理。
+
+const target = {
+  m: function () {
+    console.log(this === proxy);
+  }
+};
+const handler = {};
+
+const proxy = new Proxy(target, handler);
+
+target.m() // false
+proxy.m()  // true
+上面代码中，一旦proxy代理target，target.m()内部的this就是指向proxy，而不是target。所以，虽然proxy没有做任何拦截，target.m()和proxy.m()返回不一样的结果。`,
+        score: 3,
+      },
+      {
+        question: `解释一下这段代码：
+const service = createWebService('http://example.com/data');
+
+service.employees().then(json => {
+  const employees = JSON.parse(json);
+  // ···
+});
+
+function createWebService(baseUrl) {
+  return new Proxy({}, {
+    get(target, propKey, receiver) {
+      return () => httpGet(baseUrl + '/' + propKey);
+    }
+  });
+}`,
+        answer: `上面代码新建了一个 Web 服务的接口，这个接口返回各种数据。Proxy 可以拦截这个对象的任意属性，所以不用为每一种数据写一个适配方法，只要写一个 Proxy 拦截就可以了。`,
+        score: 1,
+      },
+      {
+        question: `vue3为什么使用proxy？`,
+        answer: `1、vue1、vue2中的defineProperty只能截取对象的属性，需要遍历对象的每个属性，而proxy直接代理对象，不需要遍历操作，效率更高。
+2、proxy不仅可以遍历对象，也能遍历数组，比defineProperty功能更加强大。`,
+        score: 3,
+      },
+      {
+        question: `为什么要设计Reflect？`,
+        answer: `（1） 将Object对象的一些明显属于语言内部的方法（比如Object.defineProperty），放到Reflect对象上。现阶段，某些方法同时在Object和Reflect对象上部署，未来的新方法将只部署在Reflect对象上。也就是说，从Reflect对象上可以拿到语言内部的方法。
+
+（2） 修改某些Object方法的返回结果，让其变得更合理。比如，Object.defineProperty(obj, name, desc)在无法定义属性时，会抛出一个错误，而Reflect.defineProperty(obj, name, desc)则会返回false。
+
+// 老写法
+try {
+  Object.defineProperty(target, property, attributes);
+  // success
+} catch (e) {
+  // failure
+}
+
+// 新写法
+if (Reflect.defineProperty(target, property, attributes)) {
+  // success
+} else {
+  // failure
+}
+
+（3） 让Object操作都变成函数行为。某些Object操作是命令式，比如name in obj和delete obj[name]，而Reflect.has(obj, name)和Reflect.deleteProperty(obj, name)让它们变成了函数行为。
+
+// 老写法
+'assign' in Object // true
+
+// 新写法
+Reflect.has(Object, 'assign') // true
+
+（4）Reflect对象的方法与Proxy对象的方法一一对应（一共13个），只要是Proxy对象的方法，就能在Reflect对象上找到对应的方法。这就让Proxy对象可以方便地调用对应的Reflect方法，完成默认行为，作为修改行为的基础。也就是说，不管Proxy怎么修改默认行为，你总可以在Reflect上获取默认行为。
+
+Proxy(target, {
+  set: function(target, name, value, receiver) {
+    var success = Reflect.set(target, name, value, receiver);
+    if (success) {
+      console.log('property ' + name + ' on ' + target + ' set to ' + value);
+    }
+    return success;
+  }
+});
+
+上面代码中，Proxy方法拦截target对象的属性赋值行为。它采用Reflect.set方法将值赋值给对象的属性，确保完成原有的行为，然后再部署额外的功能。`,
+        score: 4,
+      },
+      {
+        question: `如何使用Proxy实现观察者模式？`,
+        answer: `观察者模式（Observer mode）指的是函数自动观察数据对象，一旦对象有变化，函数就会自动执行。
+
+const person = observable({
+  name: '张三',
+  age: 20
+});
+
+function print() {
+  console.log(\`\${person.name}, \${person.age}\`)
+}
+
+observe(print);
+person.name = '李四';
+// 输出
+// 李四, 20
+
+上面代码中，数据对象person是观察目标，函数print是观察者。一旦数据对象发生变化，print就会自动执行。
+
+下面，使用 Proxy 写一个观察者模式的最简单实现，即实现observable和observe这两个函数。思路是observable函数返回一个原始对象的 Proxy 代理，拦截赋值操作，触发充当观察者的各个函数。
+
+const queuedObservers = new Set();
+
+const observe = fn => queuedObservers.add(fn);
+const observable = obj => new Proxy(obj, {set});
+
+function set(target, key, value, receiver) {
+  const result = Reflect.set(target, key, value, receiver);
+  queuedObservers.forEach(observer => observer());
+  return result;
+}
+
+上面代码中，先定义了一个Set集合，所有观察者函数都放进这个集合。然后，observable函数返回原始对象的代理，拦截赋值操作。拦截函数set之中，会自动执行所有观察者。`,
+        score: 4,
+      },
+    ],
+  },
+  {
+    name: "Iterator",
+    test: "js ES6基础",
+    visible: false,
+    subject: [
+      {
+        question: `Iterator 是什么？包含哪些？`,
+        answer: `JavaScript 原有的表示“集合”的数据结构，主要是数组（Array）和对象（Object），ES6 又添加了Map和Set。这样就有了四种数据集合，用户还可以组合使用它们，定义自己的数据结构，比如数组的成员是Map，Map的成员是对象。这样就需要一种统一的接口机制，来处理所有不同的数据结构。一个数据结构只要具有Symbol.iterator属性，就可以认为是“可遍历的”（iterable）。
+
+遍历器（Iterator）就是这样一种机制。它是一种接口，为各种不同的数据结构提供统一的访问机制。任何数据结构只要部署 Iterator 接口，就可以完成遍历操作（即依次处理该数据结构的所有成员）。`,
+        score: 3,
+      },
+      {
+        question: `Iterator 有什么作用？`,
+        answer: `Iterator 的作用有三个：一是为各种数据结构，提供一个统一的、简便的访问接口；二是使得数据结构的成员能够按某种次序排列；三是 ES6 创造了一种新的遍历命令for...of循环，Iterator 接口主要供for...of消费。`,
+        score: 3,
+      },
+      {
+        question: `Iterator 遍历过程是怎么样的？`,
+        answer: `Iterator 的遍历过程是这样的。
+（1）创建一个指针对象，指向当前数据结构的起始位置。也就是说，遍历器对象本质上，就是一个指针对象。
+（2）第一次调用指针对象的next方法，可以将指针指向数据结构的第一个成员。
+（3）第二次调用指针对象的next方法，指针就指向数据结构的第二个成员。
+（4）不断调用指针对象的next方法，直到它指向数据结构的结束位置。
+每一次调用next方法，都会返回数据结构的当前成员的信息。具体来说，就是返回一个包含value和done两个属性的对象。其中，value属性是当前成员的值，done属性是一个布尔值，表示遍历是否结束。
+
+下面是一个模拟next方法返回值的例子。
+
+var it = makeIterator(['a', 'b']);
+
+it.next() // { value: "a", done: false }
+it.next() // { value: "b", done: false }
+it.next() // { value: undefined, done: true }
+
+function makeIterator(array) {
+  var nextIndex = 0;
+  return {
+    next: function() {
+      return nextIndex < array.length ?
+        {value: array[nextIndex++], done: false} :
+        {value: undefined, done: true};
+    }
+  };
+}`,
+        score: 2,
+        img: "遍历器.png"
+      },
+      {
+        question: `如何使用 for...of 遍历数组？`,
+        answer: `对于普通的对象，for...of结构不能直接使用，会报错，必须部署了 Iterator 接口后才能使用。但是，这样情况下，for...in循环依然可以用来遍历键名。
+
+let es6 = {
+  edition: 6,
+  committee: "TC39",
+  standard: "ECMA-262"
+};
+
+for (let e in es6) {
+  console.log(e);
+}
+// edition
+// committee
+// standard
+
+for (let e of es6) {
+  console.log(e);
+}
+// TypeError: es6[Symbol.iterator] is not a function
+
+上面代码表示，对于普通的对象，for...in循环可以遍历键名，for...of循环会报错。
+
+一种解决方法是，使用Object.keys方法将对象的键名生成一个数组，然后遍历这个数组。
+
+for (var key of Object.keys(someObject)) {
+  console.log(key + ': ' + someObject[key]);
+}
+
+另一个方法是使用 Generator 函数将对象重新包装一下。
+
+const obj = { a: 1, b: 2, c: 3 }
+
+function* entries(obj) {
+  for (let key of Object.keys(obj)) {
+    yield [key, obj[key]];
+  }
+}
+
+for (let [key, value] of entries(obj)) {
+  console.log(key, '->', value);
+}
+// a -> 1
+// b -> 2
+// c -> 3`,
+        score: 3,
+      },
+      {
+        question: `与原始循环相比，forEach循环有什么缺点？`,
+        answer: `无法中途跳出forEach循环，break命令或return命令都不能奏效。`,
+        score: 2,
+      },
+      {
+        question: `相较于 for...of 或者 forEach 循环，使用 for...in 遍历数组，会有什么缺点？`,
+        answer: `for...in循环有几个缺点。
+
+数组的键名是数字，但是for...in循环是以字符串作为键名“0”、“1”、“2”等等。
+for...in循环不仅遍历数字键名，还会遍历手动添加的其他键，甚至包括原型链上的键。
+某些情况下，for...in循环会以任意顺序遍历键名。
+总之，for...in循环主要是为遍历对象而设计的，不适用于遍历数组。
+
+for...of循环相比上面几种做法，有一些显著的优点。
+
+for (let value of myArray) {
+  console.log(value);
+}
+
+有着同for...in一样的简洁语法，但是没有for...in那些缺点。
+不同于forEach方法，它可以与break、continue和return配合使用。
+提供了遍历所有数据结构的统一操作接口。`,
+        score: 3,
+      },
+    ]
+  },
+  {
+    name: "Generator 函数",
+    test: "js ES6基础",
+    visible: false,
+    subject: [
+      {
+        question: `Generator 函数是什么？`,
+        answer: `Generator 函数是 ES6 提供的一种异步编程解决方案，语法行为与传统函数完全不同。本章详细介绍 Generator 函数的语法和 API，它的异步编程应用请看《Generator 函数的异步应用》一章。
+
+Generator 函数有多种理解角度。语法上，首先可以把它理解成，Generator 函数是一个状态机，封装了多个内部状态。
+
+执行 Generator 函数会返回一个遍历器对象，也就是说，Generator 函数除了状态机，还是一个遍历器对象生成函数。返回的遍历器对象，可以依次遍历 Generator 函数内部的每一个状态。
+
+形式上，Generator 函数是一个普通函数，但是有两个特征。一是，function关键字与函数名之间有一个星号；二是，函数体内部使用yield表达式，定义不同的内部状态（yield在英语里的意思就是“产出”）。Generator 函数可以不用yield表达式，这时就变成了一个单纯的暂缓执行函数。
+
+function* helloWorldGenerator() {
+  yield 'hello';
+  yield 'world';
+  return 'ending';
+}`,
+        score: 3,
+      },
+      {
+        question: `function* helloWorldGenerator() {
+  yield 'hello';
+  yield 'world';
+  return 'ending';
+}
+
+var hw = helloWorldGenerator();
+
+请说说函数 hw 是如何调用的`,
+        answer: `上面代码定义了一个 Generator 函数helloWorldGenerator，它内部有两个yield表达式（hello和world），即该函数有三个状态：hello，world 和 return 语句（结束执行）。
+
+然后，Generator 函数的调用方法与普通函数一样，也是在函数名后面加上一对圆括号。不同的是，调用 Generator 函数后，该函数并不执行，返回的也不是函数运行结果，而是一个指向内部状态的指针对象，也就是上一章介绍的遍历器对象（Iterator Object）。
+
+下一步，必须调用遍历器对象的next方法，使得指针移向下一个状态。也就是说，每次调用next方法，内部指针就从函数头部或上一次停下来的地方开始执行，直到遇到下一个yield表达式（或return语句）为止。换言之，Generator 函数是分段执行的，yield表达式是暂停执行的标记，而next方法可以恢复执行。
+
+hw.next()
+// { value: 'hello', done: false }
+
+hw.next()
+// { value: 'world', done: false }
+
+hw.next()
+// { value: 'ending', done: true }
+
+hw.next()
+// { value: undefined, done: true }
+
+上面代码一共调用了四次next方法。
+
+第一次调用，Generator 函数开始执行，直到遇到第一个yield表达式为止。next方法返回一个对象，它的value属性就是当前yield表达式的值hello，done属性的值false，表示遍历还没有结束。
+
+第二次调用，Generator 函数从上次yield表达式停下的地方，一直执行到下一个yield表达式。next方法返回的对象的value属性就是当前yield表达式的值world，done属性的值false，表示遍历还没有结束。
+
+第三次调用，Generator 函数从上次yield表达式停下的地方，一直执行到return语句（如果没有return语句，就执行到函数结束）。next方法返回的对象的value属性，就是紧跟在return语句后面的表达式的值（如果没有return语句，则value属性的值为undefined），done属性的值true，表示遍历已经结束。
+
+第四次调用，此时 Generator 函数已经运行完毕，next方法返回对象的value属性为undefined，done属性为true。以后再调用next方法，返回的都是这个值。
+
+总结一下，调用 Generator 函数，返回一个遍历器对象，代表 Generator 函数的内部指针。以后，每次调用遍历器对象的next方法，就会返回一个有着value和done两个属性的对象。value属性表示当前的内部状态的值，是yield表达式后面那个表达式的值；done属性是一个布尔值，表示是否遍历结束。
+
+ES6 没有规定，function关键字与函数名之间的星号，写在哪个位置。这导致下面的写法都能通过。
+
+function * foo(x, y) { ··· }
+function *foo(x, y) { ··· }
+function* foo(x, y) { ··· }
+function*foo(x, y) { ··· }
+
+由于 Generator 函数仍然是普通函数，所以一般的写法是上面的第三种，即星号紧跟在function关键字后面。本书也采用这种写法。`,
+        score: 3,
+      },
+      {
+        question: `使用 yield 表达式需要注意什么？`,
+        answer: `yield表达式只能用在 Generator 函数里面，用在其他地方都会报错（包括回调函数）。
+
+(function (){
+  yield 1;
+})()
+// SyntaxError: Unexpected number`,
+        score: 2,
+      },
+    ]
+  },
+  {
+    name: "Promise",
+    test: "js ES6基础",
+    visible: false,
+    subject: [
+      {
+        question: `Promise 是什么？`,
+        answer: `Promise 是异步编程的一种解决方案，比传统的解决方案——回调函数和事件——更合理和更强大。它由社区最早提出和实现，ES6 将其写进了语言标准，统一了用法，原生提供了Promise对象。
+
+所谓Promise，简单说就是一个容器，里面保存着某个未来才会结束的事件（通常是一个异步操作）的结果。从语法上说，Promise 是一个对象，从它可以获取异步操作的消息。Promise 提供统一的 API，各种异步操作都可以用同样的方法进行处理。
+
+有了Promise对象，就可以将异步操作以同步操作的流程表达出来，避免了层层嵌套的回调函数。此外，Promise对象提供统一的接口，使得控制异步操作更加容易。`,
+        score: 3,
+      },
+      {
+        question: `Promise 有哪两个特点？`,
+        answer: `Promise对象有以下两个特点。
+
+（1）对象的状态不受外界影响。Promise对象代表一个异步操作，有三种状态：pending（进行中）、fulfilled（已成功）和rejected（已失败）。只有异步操作的结果，可以决定当前是哪一种状态，任何其他操作都无法改变这个状态。这也是Promise这个名字的由来，它的英语意思就是“承诺”，表示其他手段无法改变。
+
+（2）一旦状态改变，就不会再变，任何时候都可以得到这个结果。Promise对象的状态改变，只有两种可能：从pending变为fulfilled和从pending变为rejected。只要这两种情况发生，状态就凝固了，不会再变了，会一直保持这个结果，这时就称为 resolved（已定型）。如果改变已经发生了，你再对Promise对象添加回调函数，也会立即得到这个结果。这与事件（Event）完全不同，事件的特点是，如果你错过了它，再去监听，是得不到结果的。
+
+注意，为了行文方便，本章后面的resolved统一只指fulfilled状态，不包含rejected状态。`,
+        score: 3,
+      },
+      {
+        question: `let promise = new Promise(function(resolve, reject) {
+  console.log('Promise');
+  resolve();
+});
+
+promise.then(function() {
+  console.log('resolved.');
+});
+
+console.log('Hi!');`,
+        answer: `let promise = new Promise(function(resolve, reject) {
+  console.log('Promise');
+  resolve();
+});
+
+promise.then(function() {
+  console.log('resolved.');
+});
+
+console.log('Hi!');
+
+// Promise
+// Hi!
+// resolved
+
+上面代码中，Promise 新建后立即执行，所以首先输出的是Promise。然后，then方法指定的回调函数，将在当前脚本所有同步任务执行完才会执行，所以resolved最后输出。`,
+        score: 2,
+      },
     ]
   }
 ];
@@ -7559,7 +8168,511 @@ let ts = [
   },
 ];
 
-export let list = [...lists, ...es6,...ts];
+let mianshi = [
+  {
+    name: "浏览器原理",
+    test: "面试高频考点",
+    visible: false,
+    subject: [
+      {
+        question: `何为进程？`,
+        answer: `程序运行需要有它自己专属的内存空间，可以把这块内存空间简单的理解为进程。每个应用至少有一个进程，进程之间相互独立，即使要通信，也需要双方同意。
+详细解释就是，启动一个程序的时候，操作系统会为该程序创建一块内存，用来存放代码、运行中的数据和一个执行任务的主线程，我们把这样的一个运行环境叫进程。进程是运行在虚拟内存上的，虚拟内存是用来解决用户对硬件资源的无限需求和有限的硬件资源之间的矛盾的。从操作系统角度来看，虚拟内存即交换文件；从处理器角度看，虚拟内存即虚拟地址空间。`,
+        score: 4,
+        img: "jincheng.png"
+      },
+      {
+        question: `何为线程？`,
+        answer: `一个进程至少有一个线程，所以在进程开启后会自动创建一个线程来运行代码，该线程称之为主线程。
+如果程序需要同时执行多块代码，主线程就会启动更多的线程来执行代码，所以一个进程中可以包含多个线程。`,
+        score: 4,
+        img: "xiancheng.png"
+      },
+      {
+        question: `进程和线程的区别？`,
+        answer: `进程可以看做独立应用，线程不能
+资源：进程是cpu资源分配的最小单位（是能拥有资源和独立运行的最小单位）；线程是cpu调度的最小单位（线程是建立在进程的基础上的一次程序运行单位，一个进程中可以有多个线程）。
+通信方面：线程间可以通过直接共享同一进程中的资源，而进程通信需要借助 进程间通信。
+调度：进程切换比线程切换的开销要大。线程是CPU调度的基本单位，线程的切换不会引起进程切换，但某个进程中的线程切换到另一个进程中的线程时，会引起进程切换。
+系统开销：由于创建或撤销进程时，系统都要为之分配或回收资源，如内存、I/O 等，其开销远大于创建或撤销线程时的开销。同理，在进行进程切换时，涉及当前执行进程 CPU 环境还有各种各样状态的保存及新调度进程状态的设置，而线程切换时只需保存和设置少量寄存器内容，开销较小。`,
+        score: 3,
+      },
+      {
+        question: `最新的 Chrome 浏览器包括哪些进程？`,
+        answer: `浏览器进程（1个）：字如其面，它就是最开始启动的进程。主要负责界面显示（标签页、导航栏等）、用户交互（键盘、滚动等，监听一下，大概率是影响后面的渲染进程）、子进程（它老大，底下的进程全是它的手下）管理等。浏览器进程内部会启动多个线程处理不同的任务。
+GPU 进程（1个）：GPU 是图形处理器。其实， GPU 的使用初衷是为了实现 3D CSS 的效果，只是随后网页、Chrome 的 UI 界面都选择采用 GPU 来绘制，这使得 GPU 成为浏览器普遍的需求。最后，Chrome 在其多进程架构上也引入了 GPU 进程。
+网络进程（1个）：负责加载网络资源。网络进程内部会启动多个线程来处理不同的网络任务。
+渲染进程（多个）：核心任务是将 HTML、CSS 和 JavaScript 转换为用户可以与之交互的网页，排版引擎 Blink 和 JavaScript 引擎 V8 都是运行在该进程中，默认情况下，Chrome 会为每个 Tab 标签创建一个渲染进程。出于安全考虑，渲染进程都是运行在沙箱模式下。
+插件进程（可以没有）：主要是负责插件的运行（如 IDM 下载器），因插件易崩溃，所以需要通过插件进程来隔离，以保证插件进程崩溃不会对浏览器和页面造成影响。`,
+        score: 5,
+      },
+      {
+        question: `浏览器渲染进程的线程有哪些？`,
+        answer: `浏览器的渲染进程的线程总共有五种：
+（1）GUI渲染线程
+负责渲染浏览器页面，解析HTML、CSS，构建DOM树、构建CSSOM树、构建渲染树和绘制页面；当界面需要重绘或由于某种操作引发回流时，该线程就会执行。
+注意：GUI渲染线程和JS引擎线程是互斥的，当JS引擎执行时GUI线程会被挂起，GUI更新会被保存在一个队列中等到JS引擎空闲时立即被执行。
+（2）JS引擎线程
+JS引擎线程也称为JS内核，负责处理Javascript脚本程序，解析Javascript脚本，运行代码；JS引擎线程一直等待着任务队列中任务的到来，然后加以处理，一个Tab页中无论什么时候都只有一个JS引擎线程在运行JS程序；
+注意：GUI渲染线程与JS引擎线程的互斥关系，所以如果JS执行的时间过长，会造成页面的渲染不连贯，导致页面渲染加载阻塞。
+（3）事件触发线程
+事件触发线程属于浏览器而不是JS引擎，用来控制事件循环；当JS引擎执行代码块如setTimeOut时（也可是来自浏览器内核的其他线程,如鼠标点击、AJAX异步请求等），会将对应任务添加到事件触发线程中；当对应的事件符合触发条件被触发时，该线程会把事件添加到待处理队列的队尾，等待JS引擎的处理；
+注意：由于JS的单线程关系，所以这些待处理队列中的事件都得排队等待JS引擎处理（当JS引擎空闲时才会去执行）；
+（4）定时器触发进程
+定时器触发进程即setInterval与setTimeout所在线程；浏览器定时计数器并不是由JS引擎计数的，因为JS引擎是单线程的，如果处于阻塞线程状态就会影响记计时的准确性；因此使用单独线程来计时并触发定时器，计时完毕后，添加到事件队列中，等待JS引擎空闲后执行，所以定时器中的任务在设定的时间点不一定能够准时执行，定时器只是在指定时间点将任务添加到事件队列中；
+注意：W3C在HTML标准中规定，定时器的定时时间不能小于4ms，如果是小于4ms，则默认为4ms。
+（5）异步http请求线程
+XMLHttpRequest连接后通过浏览器新开一个线程请求；
+检测到状态变更时，如果设置有回调函数，异步线程就产生状态变更事件，将回调函数放入事件队列中，等待JS引擎空闲后执行；`,
+        score: 5,
+        img: "渲染进程.png"
+      },
+      {
+        question: `死锁产生的原因？ 如果解决死锁的问题？`,
+        answer: `所谓死锁，是指多个进程在运行过程中因争夺资源而造成的一种僵局，当进程处于这种僵持状态时，若无外力作用，它们都将无法再向前推进。
+系统中的资源可以分为两类：
+可剥夺资源，是指某进程在获得这类资源后，该资源可以再被其他进程或系统剥夺，CPU和主存均属于可剥夺性资源；
+不可剥夺资源，当系统把这类资源分配给某进程后，再不能强行收回，只能在进程用完后自行释放，如磁带机、打印机等。
+
+预防死锁的方法：
+资源一次性分配：一次性分配所有资源，这样就不会再有请求了（破坏请求条件）
+只要有一个资源得不到分配，也不给这个进程分配其他的资源（破坏请保持条件）
+可剥夺资源：即当某进程获得了部分资源，但得不到其它资源，则释放已占有的资源（破坏不可剥夺条件）
+资源有序分配法：系统给每类资源赋予一个编号，每一个进程按编号递增的顺序请求资源，释放则相反（破坏环路等待条件）`,
+        score: 3,
+      },
+      {
+        question: `如何实现浏览器内多个标签页之间的通信?`,
+        answer: `以前开发没用过，如果面试官问起来，就说webSocket方法：
+        
+使用 websocket 协议，因为 websocket 协议可以实现服务器推送，所以服务器就可以用来当做这个中介者。标签页通过向服务器发送数据，然后由服务器向其他标签页推送转发。`,
+        score: 2,
+      },
+      {
+        question: `为什么需要浏览器缓存？`,
+        answer: `对于浏览器的缓存，主要针对的是前端的静态资源（如 图片、js、css 文件等），最好的效果就是，在发起请求之后，拉取相应的静态资源，并保存在本地。如果服务器的静态资源没有更新，那么在下次请求的时候，就直接从本地读取即可，如果服务器的静态资源已经更新，那么我们再次请求的时候，就到服务器拉取新的资源，并保存在本地。这样就大大的减少了请求的次数，提高了网站的性能。这就要用到浏览器的缓存策略了。
+所谓的浏览器缓存指的是浏览器将用户请求过的静态资源，存储到电脑本地磁盘中，当浏览器再次访问时，就可以直接从本地加载，不需要再去服务端请求了。
+使用浏览器缓存，有以下优点：
+减少了服务器的负担，提高了网站的性能
+加快了客户端网页的加载速度
+减少了多余网络数据传输
+
+我们以前的公司项目用的就是 SPA 单页面应用，页面只有第一次加载时会使用资源请求，然后把这些资源缓存到浏览器中，下一次加载时就直接使用 AJAX 异步请求连接就行。
+SSR 可以在服务器端生成 HTML 代码，并发送到浏览器端，但考虑到我们公司项目繁杂，使用 SSR 会大幅增加服务器的负载压力，增加大量的开发成本，因此并未使用。只在另一个公司开发移动终端的时候才会使用 SSR。`,
+        score: 4,
+      },
+      {
+        question: `如何理解js是单线程语言?`,
+        answer: `JavaScript 只在一个线程上运行，不代表 JavaScript 引擎只有一个线程。事实上，JavaScript 引擎有多个线程，单个脚本只能在一个线程上运行（称为主线程），其他线程都是在后台配合。*
+*JS引擎是专门处理JS脚本的虚拟机，负责执行JS代码，而渲染引擎负责渲染网页。JavaScript引擎通过提供调用接口给渲染引擎，以便让渲染引擎使用JavaScript引擎来处理JavaScript代码并获取结果。*`,
+        score: 3,
+      },
+      {
+        question: `如何理解js的异步?`,
+        answer: `JS是一门单线程的语言，这是因为它运行在浏览器的渲染主线程中，而渲染主线程只有一个。
+而渲染主线程承担着诸多的工作，渲染页面、执行 JS 都在其中运行。
+如果使用同步的方式，就极有可能导致主线程产生阻塞，从而导致消息队列中的很多其他任务无法得到执行。这样一来，一方面会导致繁忙的主线程白白的消耗时间，另一方面导致页面无法及时更新，给用户造成卡死现象。
+所以浏览器采用异步的方式来避免。具体做法是当某些任务发生时，比如计时器、网络、事件监听，主线程将任务交给其他线程去处理，自身立即结束任务的执行，转而执行后续代码。当其他线程完成时，将事先传递的回调函数包装成任务，加入到消息队列的末尾排队，等待主线程调度执行。
+在这种异步模式下，主线程就不会阻塞了，从而最大限度的保证了单线程的流畅运行。
+
+总而言之，单线程是异步产生的原因，事件循环是异步的实现方式。`,
+        score: 4,
+      },
+      {
+        question: `JS为何会阻碍渲染？`,
+        answer: `如果主线程有卡顿，而页面渲染的任务还在任务队列中，就只能等主线程执行完毕。`,
+        score: 2,
+      },
+      {
+        question: `延时队列、交互队列、微队列的执行顺序是什么？`,
+        answer: `延时队列：用于存放计时器到达后的回调任务，优先级「中」
+交互队列：用于存放用户操作后产生的事件处理任务，优先级「高」
+微队列：用户存放需要最快执行的任务，优先级「最高」`,
+        score: 2,
+      },
+      {
+        question: `阐述一下 JS 的事件循环？`,
+        answer: `事件循环又叫做消息循环，是浏览器渲染主线程的工作方式。
+在 Chrome 的源码中，它开启一个不会结束的 for 循环，每次循环从消息队列中取出第一个任务执行，而其他线程只需要在合适的时候将任务加入到队列末尾即可。
+过去把消息队列简单分为宏队列和微队列，这种说法目前已无法满足复杂的浏览器环境，取而代之的是一种更加灵活多变的处理方式。
+根据 W3C 官方的解释，每个任务有不同的类型，同类型的任务必须在同一个队列，不同的任务可以属于不同的队列。不同任务队列有不同的优先级，在一次事件循环中，由浏览器自行决定取哪一个队列的任务。但浏览器必须有一个微队列，微队列的任务一定具有最高的优先级，必须优先调度执行。`,
+        score: 2,
+      },
+      {
+        question: `相比setTimeout，setInterval有什么缺点？`,
+        answer: `setInterval 的作用是每隔一段指定时间执行一个函数，但是这个执行不是真的到了时间立即执行，它真正的作用是每隔一段时间将事件加入事件队列中去，只有当当前的执行栈为空的时候，才能去从事件队列中取出事件执行。所以可能会出现这样的情况，就是当前执行栈执行的时间很长，导致事件队列里边积累多个定时器加入的事件，当执行栈结束的时候，这些事件会依次执行，因此就不能到间隔一段时间执行的效果。
+针对 setInterval 的这个缺点，我们可以使用 setTimeout 递归调用来模拟 setInterval，这样我们就确保了只有一个事件结束了，我们才会触发下一个定时器事件，这样解决了 setInterval 的问题。
+
+我们公司项目执行抄表任务的时候，是一秒钟执行一次，一开始使用的是 setInterval，它不管任务执行状态如何，下一秒一定会触发任务。如果抄表任务超时了，这些抄表任务就会一直堆积在任务队列里，结果页面卡死了。
+所以后来我们就使用 setTimeout 来解决这个问题。它可以等抄表任务结束以后再隔一秒钟执行抄表命令，任务队列就不会拥堵了。`,
+        score: 4,
+      },
+      {
+        question: `简单说下浏览器渲染页面流程？`,
+        answer: `1、解析HTML
+HTML代码会被解析成 DOM 树和 CSSOM 树
+2、样式计算
+DOM 和 CSSOM 生成之后，做进一步计算
+3、布局、分层
+将带有样式的 DOM 树进行整体布局、分层
+4、绘制
+布局、分层完成后，渲染主线程给其他线程下达具体的绘制命令
+5、分块
+因为绘制任务很庞杂，所以需要多个线程同时完成
+6、光栅化
+分块以后进行光栅化，将每个块都变成位图
+7、画
+显卡完成最终绘制
+
+注意：这个过程是逐步完成的，为了更好的用户体验，渲染引擎将会尽可能早的将内容呈现到屏幕上，并不会等到所有的 html 都解析完成之后再去构建和布局 render 树。它是解析完一部分内容就显示一部分内容，同时，可能还在通过网络下载其余内容。`,
+        score: 5,
+        img: "浏览器页面绘制.png"
+      },
+      {
+        question: `什么是 reflow？`,
+        answer: `reflow （回流，重排）的本质就是重新计算 layout 树。
+
+当进行了会影响布局树的操作后，需要重新计算布局树，会引发 layout。
+为了避免连续的多次操作导致布局树反复计算，浏览器会合并这些操作，当 JS 代码全部完成后再进行统一计算。所以，改动属性造成的 reflow 是异步完成的。
+也同样因为如此，当 JS 获取布局属性时，就可能造成无法获取到最新的布局信息。
+浏览器在反复权衡下，最终决定获取属性立即 reflow。
+
+为什么 dom.style.width 明明改了，下面的 clientWidth 还是原来的数据？因为下面执行的是异步操作，渲染是不会同步执行的，但读取 dom 的操作是同步的，所以会有差异。
+dom.style.width = "xxxpx"
+dom.clientWidth = ？`,
+        score: 4,
+        img: "reflow.png"
+      },
+      {
+        question: `什么是 reflow？`,
+        answer: `reflow （回流，重排）的本质就是重新计算 layout 树。
+
+当进行了会影响布局树的操作后，需要重新计算布局树，会引发 layout。
+为了避免连续的多次操作导致布局树反复计算，浏览器会合并这些操作，当 JS 代码全部完成后再进行统一计算。所以，改动属性造成的 reflow 是异步完成的。
+也同样因为如此，当 JS 获取布局属性时，就可能造成无法获取到最新的布局信息。
+浏览器在反复权衡下，最终决定获取属性立即 reflow。
+
+为什么 dom.style.width 明明改了，下面的 clientWidth 还是原来的数据？因为下面执行的是异步操作，渲染是不会同步执行的，但读取 dom 的操作是同步的，所以会有差异。
+dom.style.width = "xxxpx"
+dom.clientWidth = ？`,
+        score: 4,
+        img: "reflow.png"
+      },
+      {
+        question: `什么是 repaint？`,
+        answer: `repaint （重绘）的本质就是重新根据分层信息计算了绘制指令。
+
+当改动了可见样式（颜色）后，就需要重新计算，不会引发 layout，但会引发 repaint。
+由于元素的布局信息也属于可见样式，所以 reflow 一定会引起 repaint。`,
+        score: 4,
+        img: "repaint.png"
+      },
+      {
+        question: `为什么 transform 的效率高？`,
+        answer: `因为 transform 既不会影响布局也不会影响绘制指令，它影响的只是渲染流程的最后一个「draw」阶段。无论位移、缩放、旋转、倾斜等，也只是做了矩阵变换，然后把 quad（指引）信息交给 GPU。
+由于 draw 阶段在合成线程中，所以 transform 的变化几乎不会影响渲染主线程，重绘和回流操作则会影响主线程。反之，渲染主线程无论如何忙碌，也不会影响 transform 的变化。`,
+        score: 4,
+        img: "TRANSFORM.png"
+      },
+      {
+        question: `如何减少回流和重绘？`,
+        answer: `操作 DOM 时，尽量在低层级的 DOM 节点进行操作
+不要使用 table 布局， 一个小的改动可能会使整个 table 进行重新布局
+使用CSS的表达式
+修改样式时优先选择 transform
+不要频繁操作元素的样式，对于静态页面，可以修改类名，而不是样式。
+使用absolute或者fixed，使元素脱离文档流，这样他们发生变化就不会影响其他元素
+避免频繁操作DOM，可以创建一个文档片段 documentFragment，在它上面应用所有DOM操作，最后再把它添加到文档中
+将元素先设置 display: none，操作结束后再把它显示出来。因为在display属性为none的元素上进行的DOM操作不会引发回流和重绘。
+将DOM的多个读操作（或者写操作）放在一起，而不是读写操作穿插着写。这得益于浏览器的渲染队列机制。`,
+        score: 4,
+      },
+    ],
+  },
+  {
+    name: "计算机网络",
+    test: "面试高频考点",
+    visible: false,
+    subject: [
+      {
+        question: `HTTP是什么？`,
+        answer: `超文本传输协议 HyperText Transfer Protocol，是一个客户端请求和响应的标准协议。
+客户端发送给服务器的格式是请求协议（Request），服务器发送给客户端的格式是响应协议（Response）。
+超文本：有超链接的文本（有HTML格式的文本，超文本标记语言），现在可以传输不同类型的资源`,
+        score: 2,
+        img: "http.png"
+      },
+      {
+        question: `DNS是什么？`,
+        answer: `DNS 全称是域名系统 Domain Name Sistem，可以将我们输入的域名转换成对应的IP地址，查询对应的网页
+具体流程：取域名，DNS查询报文，DNS服务器查询DNS池的IP，返回对应的IP地址（有可能找不到），找到IP地址后，再通过HTTP协议查询对应的网页。
+
+域名：www.baidu.com
+根域名：com
+二级域名：baidu.com
+子域名：pic.baidu.com`,
+        score: 2,
+      },
+      {
+        question: `网址前的 http:// 是什么意思`,
+        answer: `通信规则，默认 http:// `,
+        score: 2,
+        img: "浏览器格式.png"
+      },
+      {
+        question: `HTTP协议有什么特点？`,
+        answer: `HTTP协议的底层是TCP/IP，HTTP通过TCP连接进行数据传输，这种基于TCP连接的通信方式也保证了HTTP通信的可靠性和稳定性。
+1、支持客户端与服务端两种模式。
+2、简单快速。客户向服务器发送请求的时候，只用传请求方法和路径就可以了。由于HTTP协议简单，所以HTTP服务器规模小，通信速度快。
+3、灵活。HTTP允许传输任意类型的数据对象。
+4、无连接（HTTP1.1版本后支持可持续连接）。每次连接只处理一个请求，服务器处理完客户的请求，并收到客户的应答后，就断开连接。采用这种方式不仅可以节省传输时间，也能节省资源空间，建立连接后就能立刻释放资源。
+   举个例子，和过去的电话接线员一样，打电话的人告诉接线员具体位置信息，接线员确认信息后，就断开与客户的连接了，接下来客户只用和目标对象打电话就行，接线员就去忙别的了。
+5、无状态。HTTP协议是无状态协议，对于事务处理没有记忆能力。`,
+        score: 5,
+      },
+      {
+        question: `ping命令有什么用，这种对应的是什么协议？`,
+        answer: `在我们不知道自己电脑是否连通对应IP地址的时候，就能使用ping命令，如果想知道域名对应的IP地址，也可以通过ping命令来获取
+ping 180.101.49.12 // ping www.baidu.com
+
+正在 Ping www.a.shifen.com [180.101.49.12] 具有xx字节的数据
+...
+已发送，已接收x个，丢失x个
+
+这种对应的是ICMP协议（网络控制消息协议）  Internal Control Message Protocol`,
+        score: 4,
+      },
+      {
+        question: `URL和URI是什么？`,
+        answer: `Uniform Resource Locator 统一资源定位符，也就是网址，指定远端文档所在位置
+URI 统一资源标识符，包括URL`,
+        score: 2,
+        img: "WWW万维网构成.png"
+      },
+      {
+        question: `URL有哪些构成部分？`,
+        answer: `协议名、服务器地址、服务器端口号、资源路径、请求参数、片段标识（锚点）`,
+        score: 2,
+        img: "url.png"
+      },
+      {
+        question: `简单说说TCP的三次握手？`,
+        answer: `简单来说就是以下三步：
+第一次握手：客户端向服务端发送连接请求报文段（带SYN标识）。请求发送后，客户端便进入 SYN-SENT 状态。
+第二次握手：服务端收到连接请求报文段后，如果同意连接，则会发送一个应答（带ACK标识），发送完成后便进入 SYN-RECEIVED 状态。
+第三次握手：当客户端收到连接同意的应答后，还要向服务端发送一个确认报文（带ACK标识）。客户端发完这个报文段后便进入 ESTABLISHED 状态，服务端收到这个应答后也进入 ESTABLISHED 状态，此时连接建立成功。
+TCP 三次握手的建立连接的过程就是相互确认初始序号的过程，告诉对方，什么样序号的报文段能够被正确接收。 第三次握手的作用是客户端对服务器端的初始序号的确认。如果只使用两次握手，那么服务器就没有办法知道自己的序号是否 已被确认。同时这样也是为了防止失效的请求报文段被服务器接收，而出现错误的情况。`,
+        score: 6,
+        img: "TCP握手.png"
+      },
+      {
+        question: `简单说说TCP/IP的四层模型？`,
+        answer: `分为链路层、网络层、传输层和应用层。
+HTTP协议位于应用层，生成针对Web服务器的请求报文。
+TCP位于传输层，提供可靠的字节流服务。将报文分割成报文段，并把数据传输给对方。为了准确将数据传达，TCP采用三次握手策略。
+IP协议位于网络层，按照对方的ip地址，边中转边传输数据。
+`,
+        score: 6,
+        img: "4层模型.png"
+      },
+      {
+        question: `HTTP协议有哪些不足？`,
+        answer: `1、HTTP是一个公开的协议，任何人都可以随时了解协议的细节。并且可以伪造HTTP请求获取服务端资源。
+2、HTTP/1.1 协议本身并没有加密规则，所以整个报文都是明文在网上流传。
+3、HTTP本身是为网络数据传输而生的，那么网络上任何一个网络节点，包括代理、网关、路由器等，都可以随时知道HTTP传输的内容。
+`,
+        score: 6,
+        img: "http不足.png"
+      },
+      {
+        question: `为了解决HTTP安全性问题，有什么解决方法？`,
+        answer: `一般情况下，我们会用上两种加密
+
+1、使用SSL/TLS对网络通讯进行加密
+SSL （Secure Socket Layer）是安全套接层，是TLS的前身，当然现在大多数公司使用的都是TLS
+TLS  (Transport Layer Security) 安全传输层协议，用于加密应用层的数据
+有了 SSL/TLS 的支持，就可以实现HTTPS协议（超文本传输安全协议）
+当然，SSL/TLS 通路和TCP一样，为了安全和完整性也会牺牲一些效率
+
+2、加密报文体
+HTTP协议的报文分为报文头和报文体。
+报文头加不加密不影响安全问题，但报文体需要加密。密钥这种加密算法可以完全私有化，安全性相对较高。
+`,
+        score: 6,
+      },
+      {
+        question: `HTTP 1.0 和 HTTP 1.1 之间有哪些区别？`,
+        answer: `
+HTTP 1.0和 HTTP 1.1 有以下区别：
+连接方面，http1.0 默认使用非持久连接，而 http1.1 默认使用持久连接。http1.1 通过使用持久连接来使多个 http 请求复用同一个 TCP 连接，以此来避免使用非持久连接时每次需要建立连接的时延。
+资源请求方面，在 http1.0 中，存在一些浪费带宽的现象，例如客户端只是需要某个对象的一部分，而服务器却将整个对象送过来了，并且不支持断点续传功能，http1.1 则在请求头引入了 range 头域，它允许只请求资源的某个部分，即返回码是 206（Partial Content），这样就方便了开发者自由的选择以便于充分利用带宽和连接。
+缓存方面，在 http1.0 中主要使用 header 里的 If-Modified-Since、Expires 来做为缓存判断的标准，http1.1 则引入了更多的缓存控制策略，例如 Etag、If-Unmodified-Since、If-Match、If-None-Match 等更多可供选择的缓存头来控制缓存策略。
+http1.1 中新增了 host 字段，用来指定服务器的域名。http1.0 中认为每台服务器都绑定一个唯一的 IP 地址，因此，请求消息中的 URL 并没有传递主机名（hostname）。但随着虚拟主机技术的发展，在一台物理服务器上可以存在多个虚拟主机，并且它们共享一个IP地址。因此有了 host 字段，这样就可以将请求发往到同一台服务器上的不同网站。
+http1.1 相对于 http1.0 还新增了很多请求方法，如 PUT、HEAD、OPTIONS 等。
+`,
+        score: 4,
+      },
+      {
+        question: `在浏览器中输入 Google.com 并且按下回车之后发生了什么？`,
+        answer: `
+（1）解析URL：首先会对 URL 进行解析，分析所需要使用的传输协议和请求的资源的路径。如果输入的 URL 中的协议或者主机名不合法，将会把地址栏中输入的内容传递给搜索引擎。如果没有问题，浏览器会检查 URL 中是否出现了非法字符，如果存在非法字符，则对非法字符进行转义后再进行下一过程。
+（2）缓存判断：浏览器会判断所请求的资源是否在缓存里，如果请求的资源在缓存里并且没有失效，那么就直接使用，否则向服务器发起新的请求。
+（3）DNS解析：下一步首先需要获取的是输入的 URL 中的域名的 IP 地址，首先会判断本地是否有该域名的 IP 地址的缓存，如果有则使用，如果没有则向本地 DNS 服务器发起请求。本地 DNS 服务器也会先检查是否存在缓存，如果没有就会先向根域名服务器发起请求，获得负责的顶级域名服务器的地址后，再向顶级域名服务器请求，然后获得负责的权威域名服务器的地址后，再向权威域名服务器发起请求，最终获得域名的 IP 地址后，本地 DNS 服务器再将这个 IP 地址返回给请求的用户。用户向本地 DNS 服务器发起请求属于递归请求，本地 DNS 服务器向各级域名服务器发起请求属于迭代请求。
+（4）获取MAC地址：当浏览器得到 IP 地址后，数据传输还需要知道目的主机 MAC 地址，因为应用层下发数据给传输层，TCP 协议会指定源端口号和目的端口号，然后下发给网络层。网络层会将本机地址作为源地址，获取的 IP 地址作为目的地址。然后将下发给数据链路层，数据链路层的发送需要加入通信双方的 MAC 地址，本机的 MAC 地址作为源 MAC 地址，目的 MAC 地址需要分情况处理。通过将 IP 地址与本机的子网掩码相与，可以判断是否与请求主机在同一个子网里，如果在同一个子网里，可以使用 ARP 协议获取到目的主机的 MAC 地址，如果不在一个子网里，那么请求应该转发给网关，由它代为转发，此时同样可以通过 ARP 协议来获取网关的 MAC 地址，此时目的主机的 MAC 地址应该为网关的地址。
+（5）TCP三次握手：下面是 TCP 建立连接的三次握手的过程，首先客户端向服务器发送一个 SYN 连接请求报文段和一个随机序号，服务端接收到请求后向服务器端发送一个 SYN ACK报文段，确认连接请求，并且也向客户端发送一个随机序号。客户端接收服务器的确认应答后，进入连接建立的状态，同时向服务器也发送一个ACK 确认报文段，服务器端接收到确认后，也进入连接建立状态，此时双方的连接就建立起来了。
+（6）HTTPS握手：如果使用的是 HTTPS 协议，在通信前还存在 TLS 的一个四次握手的过程。首先由客户端向服务器端发送使用的协议的版本号、一个随机数和可以使用的加密方法。服务器端收到后，确认加密的方法，也向客户端发送一个随机数和自己的数字证书。客户端收到后，首先检查数字证书是否有效，如果有效，则再生成一个随机数，并使用证书中的公钥对随机数加密，然后发送给服务器端，并且还会提供一个前面所有内容的 hash 值供服务器端检验。服务器端接收后，使用自己的私钥对数据解密，同时向客户端发送一个前面所有内容的 hash 值供客户端检验。这个时候双方都有了三个随机数，按照之前所约定的加密方法，使用这三个随机数生成一把秘钥，以后双方通信前，就使用这个秘钥对数据进行加密后再传输。
+（7）返回数据：当页面请求发送到服务器端后，服务器端会返回一个 html 文件作为响应，浏览器接收到响应后，开始对 html 文件进行解析，开始页面的渲染过程。
+（8）页面渲染：浏览器首先会根据 html 文件构建 DOM 树，根据解析到的 css 文件构建 CSSOM 树，如果遇到 script 标签，则判端是否含有 defer 或者 async 属性，要不然 script 的加载和执行会造成页面的渲染的阻塞。当 DOM 树和 CSSOM 树建立好后，根据它们来构建渲染树。渲染树构建好后，会根据渲染树来进行布局。布局完成后，最后使用浏览器的 UI 接口对页面进行绘制。这个时候整个页面就显示出来了。
+（9）TCP四次挥手：最后一步是 TCP 断开连接的四次挥手过程。若客户端认为数据发送完成，则它需要向服务端发送连接释放请求。服务端收到连接释放请求后，会告诉应用层要释放 TCP 链接。然后会发送 ACK 包，并进入 CLOSE_WAIT 状态，此时表明客户端到服务端的连接已经释放，不再接收客户端发的数据了。但是因为 TCP 连接是双向的，所以服务端仍旧可以发送数据给客户端。服务端如果此时还有没发完的数据会继续发送，完毕后会向客户端发送连接释放请求，然后服务端便进入 LAST-ACK 状态。客户端收到释放请求后，向服务端发送确认应答，此时客户端进入 TIME-WAIT 状态。该状态会持续 2MSL（最大段生存期，指报文段在网络中生存的时间，超时会被抛弃） 时间，若该时间段内没有服务端的重发请求的话，就进入 CLOSED 状态。当服务端收到确认应答后，也便进入 CLOSED 状态。
+`,
+        score: 8,
+      },
+      {
+        question: `对 WebSocket 的理解？`,
+        answer: `WebSocket是HTML5提供的一种浏览器与服务器进行【全双工通讯】的网络技术，属于应用层协议。它基于TCP传输协议，并复用HTTP的握手通道。浏览器和服务器只需要完成一次握手，两者之间就直接可以创建持久性的连接， 并进行双向数据传输。
+WebSocket 的出现就解决了半双工通信的弊端。它最大的特点是：服务器可以向客户端主动推动消息，客户端也可以主动向服务器推送消息。
+WebSocket原理：客户端向 WebSocket 服务器通知（notify）一个带有所有接收者ID（recipients IDs）的事件（event），服务器接收后立即通知所有活跃的（active）客户端，只有ID在接收者ID序列中的客户端才会处理这个事件。
+`,
+        score: 5,
+        img: "ws.png"
+      },
+      {
+        question: `WebSocket 的特点？`,
+        answer: `支持双向通信，实时性更强
+可以发送文本，也可以发送二进制数据‘’
+建立在TCP协议之上，服务端的实现比较容易
+数据格式比较轻量，性能开销小，通信高效
+没有同源限制，客户端可以与任意服务器通信
+协议标识符是ws（如果加密，则为wss），服务器网址就是 URL
+与 HTTP 协议有着良好的兼容性。默认端口也是80和443，并且握手阶段采用 HTTP 协议，因此握手时不容易屏蔽，能通过各种 HTTP 代理服务器。
+`,
+        score: 5,
+      },
+      {
+        question: `短轮询、长轮询、SSE 和 WebSocket 间的区别？`,
+        answer: `短轮询和长轮询的目的都是用于实现客户端和服务器端的一个即时通讯。
+
+短轮询的基本思路：浏览器每隔一段时间向浏览器发送 http 请求，服务器端在收到请求后，不论是否有数据更新，都直接进行响应。这种方式实现的即时通信，本质上还是浏览器发送请求，服务器接受请求的一个过程，通过让客户端不断的进行请求，使得客户端能够模拟实时地收到服务器端的数据的变化。这种方式的优点是比较简单，易于理解。缺点是这种方式由于需要不断的建立 http 连接，严重浪费了服务器端和客户端的资源。当用户增加时，服务器端的压力就会变大，这是很不合理的。
+长轮询的基本思路：首先由客户端向服务器发起请求，当服务器收到客户端发来的请求后，服务器端不会直接进行响应，而是先将这个请求挂起，然后判断服务器端数据是否有更新。如果有更新，则进行响应，如果一直没有数据，则到达一定的时间限制才返回。客户端 JavaScript 响应处理函数会在处理完服务器返回的信息后，再次发出请求，重新建立连接。长轮询和短轮询比起来，它的优点是明显减少了很多不必要的 http 请求次数，相比之下节约了资源。长轮询的缺点在于，连接挂起也会导致资源的浪费。
+SSE 的基本思想：服务器使用流信息向服务器推送信息。严格地说，http 协议无法做到服务器主动推送信息。但是，有一种变通方法，就是服务器向客户端声明，接下来要发送的是流信息。也就是说，发送的不是一次性的数据包，而是一个数据流，会连续不断地发送过来。这时，客户端不会关闭连接，会一直等着服务器发过来的新的数据流，视频播放就是这样的例子。SSE 就是利用这种机制，使用流信息向浏览器推送信息。它基于 http 协议，目前除了 IE/Edge，其他浏览器都支持。它相对于前面两种方式来说，不需要建立过多的 http 请求，相比之下节约了资源。
+WebSocket 是 HTML5 定义的一个新协议议，与传统的 http 协议不同，该协议允许由服务器主动的向客户端推送信息。使用 WebSocket 协议的缺点是在服务器端的配置比较复杂。WebSocket 是一个全双工的协议，也就是通信双方是平等的，可以相互发送消息，而 SSE 的方式是单向通信的，只能由服务器端向客户端推送信息，如果客户端需要发送信息就是属于下一个 http 请求了。
+
+上面的四个通信协议，前三个都是基于HTTP协议的。
+对于这四种即使通信协议，从性能的角度来看：
+WebSocket > 长连接（SEE） > 长轮询 > 短轮询
+但是，我们如果考虑浏览器的兼容性问题，顺序就恰恰相反了：
+短轮询 > 长轮询 > 长连接（SEE） > WebSocket
+所以，还是要根据具体的使用场景来判断使用哪种方式。        
+`,
+        score: 5,
+      },
+      {
+        question: `请写一个关于 WebSocket 的代码？`,
+        answer: `// 在index.html中直接写WebSocket，设置服务端的端口号为 9999
+let ws = new WebSocket('ws://localhost:9999');
+// 在客户端与服务端建立连接后触发
+ws.onopen = function() {
+    console.log("Connection open."); 
+    ws.send('hello');
+};
+// 在服务端给客户端发来消息的时候触发
+ws.onmessage = function(res) {
+    console.log(res);       // 打印的是MessageEvent对象
+    console.log(res.data);  // 打印的是收到的消息
+};
+// 在客户端与服务端建立关闭后触发
+ws.onclose = function(evt) {
+  console.log("Connection closed.");
+}; 
+`,
+        score: 5,
+      },
+      {
+        question: `GET和POST的请求的区别？`,
+        answer: `Post 和 Get 是 HTTP 请求的两种方法，其区别如下：
+应用场景：GET 请求是一个幂等的请求，一般 Get 请求用于对服务器资源不会产生影响的场景，比如说请求一个网页的资源。而 Post 不是一个幂等的请求，一般用于对服务器资源会产生影响的情景，比如注册用户这一类的操作。
+是否缓存：因为两者应用场景不同，浏览器一般会对 Get 请求缓存，但很少对 Post 请求缓存。
+发送的报文格式：Get 请求的报文中实体部分为空，Post 请求的报文中实体部分一般为向服务器发送的数据。
+安全性：Get 请求可以将请求的参数放入 url 中向服务器发送，这样的做法相对于 Post 请求来说是不太安全的，因为请求的 url 会被保留在历史记录中。
+请求长度：浏览器由于对 url 长度的限制，所以会影响 get 请求发送数据时的长度。这个限制是浏览器规定的，并不是 RFC 规定的。
+参数类型：post 的参数传递支持更多的数据类型。
+`,
+        score: 5,
+      },
+      {
+        question: `POST和PUT请求的区别`,
+        answer: `PUT请求是向服务器端发送数据，从而修改数据的内容，但是不会增加数据的种类等，也就是说无论进行多少次PUT操作，其结果并没有不同。（可以理解为是更新数据）
+POST请求是向服务器端发送数据，该请求会改变数据的种类等资源，它会创建新的内容。（可以理解为是创建数据）
+`,
+        score: 4,
+      },
+      {
+        question: `常见的HTTP请求方法有哪些？`,
+        answer: `GET: 向服务器获取数据；
+POST：将实体提交到指定的资源，通常用于修改服务器数据；
+
+PUT：上传文件，更新数据（出于安全问题考虑，一般网站不开放）；
+DELETE：删除服务器上的对象（出于安全问题考虑，一般网站不开放）；
+HEAD：获取报文头部，与GET相比，不返回报文主体部分（服务器可能不支持）；
+OPTIONS：询问支持的请求方法，用来跨域请求（查完以后，一般都会支持GET POST，其他的看情况）；
+CONNECT：要求在与代理服务器通信时建立隧道，使用隧道进行TCP通信（用的最少）；
+TRACE: 回显服务器收到的请求，主要⽤于测试或诊断（用的最少）。
+`,
+        score: 4,
+      },
+      {
+        question: `HTTP和HTTPS协议的区别有哪些？`,
+        answer: `HTTP和HTTPS协议的主要区别如下：
+HTTPS协议需要CA证书，费用较高；而HTTP协议不需要；
+HTTP协议是超文本传输协议，信息是明文传输的，HTTPS则是具有安全性的SSL加密传输协议；
+使用不同的连接方式，端口也不同，HTTP协议端口是80，HTTPS协议端口是443；
+HTTP协议连接很简单，是无状态的；HTTPS协议是有SSL和HTTP协议构建的可进行加密传输、身份认证的网络协议，比HTTP更加安全。
+`,
+        score: 4,
+      },
+      {
+        question: `HTTP的状态码大致分成哪五类？`,
+        answer: `
+1xx	Informational(信息性状态码) \t\t\t\t接受的请求正在处理（很少用）
+2xx	Success(成功状态码) \t\t\t	      请求正常处理完毕（最常用）
+3xx	Redirection(重定向状态码) \t\t\t	需要进行附加操作一完成请求
+4xx	Client Error (客户端错误状态码) \t\t	服务器无法处理请求
+5xx	Server Error(服务器错误状态码) \t\t\t	服务器处理请求出错
+`,
+        score: 8,
+        img: "服务器请求错误类型.png"
+      },
+      {
+        question: `什么是token，为什么要用token存储用户信息？`,
+        answer: `在用户通过身份验证后，服务器会生成一个Token（令牌）并发给客户端，之后客户端会在每次请求中附带此Token以证明身份，一般存储在localStorage中。这种机制允许在不需要服务器端保持用户会话状态的情况下，实现用户身份的验证和授权，因此特别适用于状态无关的身份验证和授权场景。
+Token的这种特性使得它成为一种非常适合现代Web应用和移动应用的身份验证方法。与Session相比，Token不需要服务器端维护用户的会话状态，从而减轻了服务器的负担，提高了系统的可扩展性。同时，Token的传输是加密的，增加了数据的安全性，防止了敏感信息的泄露。
+`,
+        score: 4,
+        img: "服务器请求错误类型.png"
+      },
+      {
+        question: `200、204、301、302、400、401、403、404、500、502、503代表什么？`,
+        answer: `
+200：（OK）表示客户端发来的请求被服务器端正常处理了。
+204：（No Content）该状态码表示客户端发送的请求已经在服务器端正常处理了，但是没有返回的内容，响应报文中不包含实体的主体部分。一般在只需要从客户端往服务器端发送信息，而服务器端不需要往客户端发送内容时使用。
+301：（Moved Permanently）永久重定向。该状态码表示请求的资源已经被分配了新的 URI，以后应使用资源指定的 URI。新的 URI 会在 HTTP 响应头中的 Location 首部字段指定。若用户已经把原来的URI保存为书签，此时会按照 Location 中新的URI重新保存该书签。同时，搜索引擎在抓取新内容的同时也将旧的网址替换为重定向之后的网址。
+302：（Found）临时重定向。该状态码表示请求的资源被分配到了新的 URI，希望用户（本次）能使用新的 URI 访问资源。和 301 Moved Permanently 状态码相似，但是 302 代表的资源不是被永久重定向，只是临时性质的。也就是说已移动的资源对应的 URI 将来还有可能发生改变。
+400: （Bad Request）请求错误。这个请求代表客户端发送请求的语法错误或是服务器无法响应该请求。
+401：（Unauthorized）认证失败。该状态码表示发送的请求需要有通过 HTTP 认证(BASIC 认证、DIGEST 认证)的认证信息。若之前已进行过一次请求，则表示用户认证失败。
+403：（Forbidden）没有权限。该状态码表明请求资源的访问被服务器拒绝了，服务器端没有必要给出详细理由，但是可以在响应报文实体的主体中进行说明。进入该状态后，不能再继续进行验证。该访问是永久禁止的，并且与应用逻辑密切相关。
+404：（Not Found）找不到对象。该状态码表明服务器上无法找到请求的资源。
+500：（Internal Server Error）服务器错误。该状态码表明服务器端在执行请求时发生了错误。也有可能是 Web 应用存在的 bug 或某些临时的故障。
+502：（Bad Gateway）网关连接出错。该状态码表明扮演网关或代理角色的服务器，从上游服务器中接收到的响应是无效的。注意，502 错误通常不是客户端能够修复的，而是需要由途经的 Web 服务器或者代理服务器对其进行修复。
+503：（Service Unavailable）服务器禁用。该状态码表明服务器暂时处于超负载或正在进行停机维护，现在无法处理请求。如果事先得知解除以上状况需要的时间，最好写入 RetryAfter 首部字段再返回给客户端。
+`,
+        score: 8,
+      },
+      // 304 问题，浏览器缓存策略
+    ]
+  }
+]
+
+export let list = [...lists, ...es6, ...ts, ...mianshi];
 
 export function luanxu(index) {
   // console.log(123);
